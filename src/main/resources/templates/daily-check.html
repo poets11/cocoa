@@ -1,0 +1,135 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" layout:decorator="layout/template">
+<head>
+    <title>Cocoa Monitor</title>
+</head>
+<body>
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper" layout:fragment="content">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <h1>
+                일일 점검
+                <small>Tablespace | Session</small>
+            </h1>
+            <ol class="breadcrumb">
+                <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+                <li class="active">일일 점검</li>
+            </ol>
+        </section>
+
+        <!-- Main content -->
+        <section id="abcd" class="content">
+            <!-- Small boxes (Stat box) -->
+            <div class="row" th:each="instance, instStatus : ${instanceList}" th:if="${instStatus.even == false}">
+                <div class="col-md-6" th:with="curInst=${instanceList.get(instStatus.index)}">
+                    <div class="box" th:id="'box-' + ${curInst.id}" th:with="curStatus=${curInst.statusList.get(0)}">
+                        <div class="box-header">
+                            <h3 class="box-title">[[${curInst.name}]]([[${curInst.id}]]) <i class="fa fa-refresh" th:onclick="'reloadInstance(\'' + ${curInst.id} + '\')'"></i> - <small th:text="${#dates.format(curStatus.createdDate, 'yyyy/MM/dd/MM HH:mm')}">2016-08-11</small></h3>
+                            <div class="box-tools pull-right">
+                                <span class="label label-danger" th:if="${curStatus.session.lockedCount > 0}" th:text="'L : ' + ${curStatus.session.lockedCount}">L : 2</span>
+                                <span class="label label-info" th:text="'A : ' + ${curStatus.session.activeCount}">A : 23</span>
+                                <span class="label label-success" th:text="'T : ' + ${curStatus.session.totalCount}">T : 36</span>
+                            </div>
+                        </div>
+                        <!-- /.box-header -->
+                        <div class="box-body no-padding">
+                            <table class="table table-condensed">
+                                <tbody>
+                                <tr>
+                                    <th style="text-align:center">#</th>
+                                    <th style="text-align:center">Tablespace Name</th>
+                                    <th style="text-align:center">File(Cnt)</th>
+                                    <th style="text-align:center">Size(MB)</th>
+                                    <th style="text-align:center">Free(MB)</th>
+                                    <th style="text-align:center">Use(MB)</th>
+                                    <th style="text-align:center">Use(%)</th>
+                                </tr>
+                                <tr th:each="tablespace, tablespaceStatus : ${curStatus.tablespaceList}">
+                                    <td style="text-align:center" th:text="${tablespaceStatus.index + 1}">1.</td>
+                                    <td style="text-align:center" th:text="${tablespace.name}">SYSAUX</td>
+                                    <td style="text-align:center" th:text="${#numbers.formatInteger(tablespace.fileCount, 1, 'COMMA')}">15</td>
+                                    <td style="text-align:right" th:text="${#numbers.formatInteger(tablespace.totalSize, 1, 'COMMA') + 'MB'}">11,700MB</td>
+                                    <td style="text-align:right" th:text="${#numbers.formatInteger(tablespace.freeSize, 1, 'COMMA') + 'MB'}">49MB</td>
+                                    <td style="text-align:right" th:text="${#numbers.formatInteger(tablespace.usedSize, 1, 'COMMA') + 'MB'}">11,651MB</td>
+                                    <td>
+                                        <div class="progress progress-xs" style="position:relative; height:20px; margin-top:0">
+                                            <div th:if="${tablespace.usedRatio >= 80}" class="progress-bar progress-bar-danger" th:style="'width:' + ${#numbers.formatInteger(tablespace.usedRatio,1)} + '%'">
+                                                <b style="position: absolute; top: 0; left: 0; width: 100%; text-align: center;" th:text="${tablespace.usedRatio + '%'}">99.55%</b>
+                                            </div>
+                                            <div th:if="${tablespace.usedRatio >= 30 && tablespace.usedRatio < 80}" class="progress-bar progress-bar-yellow" th:style="'width:' + ${#numbers.formatInteger(tablespace.usedRatio,1)} + '%'">
+                                                <b style="position: absolute; top: 0; left: 0; width: 100%; text-align: center;" th:text="${tablespace.usedRatio + '%'}">99.55%</b>
+                                            </div>
+                                            <div th:if="${tablespace.usedRatio < 30}" class="progress-bar progress-bar-success" th:style="'width:' + ${#numbers.formatInteger(tablespace.usedRatio,1)} + '%'">
+                                                <b style="position: absolute; top: 0; left: 0; width: 100%; text-align: center;" th:text="${tablespace.usedRatio + '%'}">99.55%</b>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- /.box-body -->
+                    </div>
+                    <!-- /.box -->
+                </div>
+                <div class="col-md-6" th:if="${instStatus.index + 1 < instanceList.size()}" th:with="curInst=${instanceList.get(instStatus.index + 1)}">
+                    <div class="box" th:id="'box-' + ${curInst.id}" th:with="curStatus=${curInst.statusList.get(0)}">
+                        <div class="box-header">
+                            <h3 class="box-title">[[${curInst.name}]]([[${curInst.id}]]) <i class="fa fa-refresh" th:onclick="'reloadInstance(\'' + ${curInst.id} + '\')'"></i> - <small th:text="${#dates.format(curStatus.createdDate, 'yyyy/MM/dd/MM HH:mm')}">2016-08-11</small></h3>
+                            <div class="box-tools pull-right">
+                                <span class="label label-danger" th:if="${curStatus.session.lockedCount > 0}" th:text="'L : ' + ${curStatus.session.lockedCount}">L : 2</span>
+                                <span class="label label-info" th:text="'A : ' + ${curStatus.session.activeCount}">A : 23</span>
+                                <span class="label label-success" th:text="'T : ' + ${curStatus.session.totalCount}">T : 36</span>
+                            </div>
+                        </div>
+                        <!-- /.box-header -->
+                        <div class="box-body no-padding">
+                            <table class="table table-condensed">
+                                <tbody>
+                                <tr>
+                                    <th style="text-align:center">#</th>
+                                    <th style="text-align:center">Tablespace Name</th>
+                                    <th style="text-align:center">File(Cnt)</th>
+                                    <th style="text-align:center">Size(MB)</th>
+                                    <th style="text-align:center">Free(MB)</th>
+                                    <th style="text-align:center">Use(MB)</th>
+                                    <th style="text-align:center">Use(%)</th>
+                                </tr>
+                                <tr th:each="tablespace, tablespaceStatus : ${curStatus.tablespaceList}">
+                                    <td style="text-align:center" th:text="${tablespaceStatus.index + 1}">1.</td>
+                                    <td style="text-align:center" th:text="${tablespace.name}">SYSAUX</td>
+                                    <td style="text-align:center" th:text="${#numbers.formatInteger(tablespace.fileCount, 1, 'COMMA')}">15</td>
+                                    <td style="text-align:right" th:text="${#numbers.formatInteger(tablespace.totalSize, 1, 'COMMA') + 'MB'}">11,700MB</td>
+                                    <td style="text-align:right" th:text="${#numbers.formatInteger(tablespace.freeSize, 1, 'COMMA') + 'MB'}">49MB</td>
+                                    <td style="text-align:right" th:text="${#numbers.formatInteger(tablespace.usedSize, 1, 'COMMA') + 'MB'}">11,651MB</td>
+                                    <td>
+                                        <div class="progress progress-xs" style="position:relative; height:20px; margin-top:0">
+                                            <div th:if="${tablespace.usedRatio >= 80}" class="progress-bar progress-bar-danger" th:style="'width:' + ${#numbers.formatInteger(tablespace.usedRatio,1)} + '%'">
+                                                <b style="position: absolute; top: 0; left: 0; width: 100%; text-align: center;" th:text="${tablespace.usedRatio + '%'}">99.55%</b>
+                                            </div>
+                                            <div th:if="${tablespace.usedRatio >= 30 && tablespace.usedRatio < 80}" class="progress-bar progress-bar-yellow" th:style="'width:' + ${#numbers.formatInteger(tablespace.usedRatio,1)} + '%'">
+                                                <b style="position: absolute; top: 0; left: 0; width: 100%; text-align: center;" th:text="${tablespace.usedRatio + '%'}">99.55%</b>
+                                            </div>
+                                            <div th:if="${tablespace.usedRatio < 30}" class="progress-bar progress-bar-success" th:style="'width:' + ${#numbers.formatInteger(tablespace.usedRatio,1)} + '%'">
+                                                <b style="position: absolute; top: 0; left: 0; width: 100%; text-align: center;" th:text="${tablespace.usedRatio + '%'}">99.55%</b>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- /.box-body -->
+                    </div>
+                    <!-- /.box -->
+                </div>
+            </div>
+            <!-- /.row -->
+
+        </section>
+        <!-- /.content -->
+    </div>
+    <!-- /.content-wrapper -->
+</body>
+</html>
