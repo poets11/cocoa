@@ -19,17 +19,16 @@ public class DailyCheckController {
     private InstanceService instanceService;
 
     @RequestMapping("/daily-check.mj")
-    public String dailyCheck(Model model) {
+    public String index(Model model) {
         List<Instance> instanceList = instanceService.getAllInstanceList();
 
-        System.out.println(instanceList.size());
         model.addAttribute("instanceList", instanceList);
 
-        return "daily-check";
+        return "daily/main";
     }
 
     @RequestMapping("/daily-check/{id}/snippet.mj")
-    public String realodInstanceAndGetSnippet(@PathVariable String id, Model model) {
+    public String snippet(@PathVariable String id, Model model) {
         try {
             Thread.sleep(3000);
 
@@ -37,11 +36,15 @@ public class DailyCheckController {
             model.addAttribute("curInst", instance);
             model.addAttribute("curStatus", instance.getStatusList().get(0));
 
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            Instance instance = instanceService.getInstanceById(id);
+            model.addAttribute("curInst", instance);
+            model.addAttribute("message", e.getMessage());
+
+            return "daily/fail-snippet";
         }
 
-        return "daily-check-snippet";
+        return "daily/success-snippet";
     }
 }
 

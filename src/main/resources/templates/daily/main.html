@@ -9,7 +9,7 @@
         <!-- Content Header (Page header) -->
         <section class="content-header">
             <h1>
-                일일 점검
+                일일 점검 <i class="fa fa-refresh" th:onclick="'reloadAllInstance()'"></i>
                 <small>Tablespace | Session</small>
             </h1>
             <ol class="breadcrumb">
@@ -19,7 +19,7 @@
         </section>
 
         <!-- Main content -->
-        <section id="abcd" class="content">
+        <section class="content">
             <!-- Small boxes (Stat box) -->
             <div class="row" th:each="instance, instStatus : ${instanceList}" th:if="${instStatus.even == false}">
                 <div class="col-md-6" th:with="curInst=${instanceList.get(instStatus.index)}">

@@ -1,5 +1,6 @@
 package mj.cocoa.instance;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -11,20 +12,11 @@ public class Instance {
     private String name;
     private String description;
     private String version;
+    private Date updatedDate;
     private Connection connection;
     private List<Status> statusList;
 
     public Instance() {
-    }
-
-    public Instance(int seq, String id, String name, String description, String version, Connection connection, List<Status> statusList) {
-        this.seq = seq;
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.version = version;
-        this.connection = connection;
-        this.statusList = statusList;
     }
 
     public int getSeq() {
@@ -67,6 +59,14 @@ public class Instance {
         this.version = version;
     }
 
+    public Date getUpdatedDate() {
+        return updatedDate;
+    }
+
+    public void setUpdatedDate(Date updatedDate) {
+        this.updatedDate = updatedDate;
+    }
+
     public Connection getConnection() {
         return connection;
     }
@@ -91,6 +91,7 @@ public class Instance {
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", version='" + version + '\'' +
+                ", updatedDate=" + updatedDate +
                 ", connection=" + connection +
                 ", statusList=" + statusList +
                 '}';
