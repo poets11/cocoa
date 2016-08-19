@@ -1,5 +1,9 @@
 package mj.cocoa.instance;
 
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+
+import java.sql.SQLException;
+
 /**
  * Created by poets11 on 2016. 8. 18..
  */
@@ -7,15 +11,18 @@ public class Connection {
     private String host;
     private String port;
     private String sid;
-    private String userid;
-    private String userpassword;
+    private String userName;
+    private String userPassword;
 
-    public Connection(String host, String port, String sid, String userid, String userpassword) {
+    public Connection() {
+    }
+
+    public Connection(String host, String port, String sid, String userName, String userPassword) {
         this.host = host;
         this.port = port;
         this.sid = sid;
-        this.userid = userid;
-        this.userpassword = userpassword;
+        this.userName = userName;
+        this.userPassword = userPassword;
     }
 
     public String getHost() {
@@ -42,19 +49,44 @@ public class Connection {
         this.sid = sid;
     }
 
-    public String getUserid() {
-        return userid;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setUserid(String userid) {
-        this.userid = userid;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
-    public String getUserpassword() {
-        return userpassword;
+    public String getUserPassword() {
+        return userPassword;
     }
 
-    public void setUserpassword(String userpassword) {
-        this.userpassword = userpassword;
+    public void setUserPassword(String userPassword) {
+        this.userPassword = userPassword;
+    }
+
+    @Override
+    public String toString() {
+        return "Connection{" +
+                "host='" + host + '\'' +
+                ", port='" + port + '\'' +
+                ", sid='" + sid + '\'' +
+                ", userName='" + userName + '\'' +
+                ", userPassword='" + userPassword + '\'' +
+                '}';
+    }
+
+    public java.sql.Connection getConnection() throws SQLException {
+        String url = getJDBCUrl();
+
+        DriverManagerDataSource dataSource = new DriverManagerDataSource(url, getUserName(), getUserPassword());
+        dataSource.setDriverClassName("oracle.jdbc.driver.OracleDriver");
+
+        return dataSource.getConnection();
+    }
+
+    private static final String JDBC_URL = "jdbc:oracle:thin:@%s:%s:%s";
+    private String getJDBCUrl() {
+        return String.format(JDBC_URL, getHost(), getPort(), getSid());
     }
 }

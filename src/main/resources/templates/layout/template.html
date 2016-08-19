@@ -150,6 +150,17 @@
           $('#myInput').focus()
         })
     }
+
+    function testConnect() {
+        var params = $(".form-horizontal").serialize();
+        $.get("/connect-check.mj?" + params, function(data) {
+            if(data.result == true) {
+                alert('OK');
+            } else {
+                alert(data.message);
+            }
+        });
+    }
 </script>
 </body>
 </html>
