@@ -1,9 +1,21 @@
 package mj.cocoa.instance;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+
 /**
  * Created by poets11 on 2016. 8. 18..
  */
+@Entity
 public class Tablespace {
+    @Id
+    @GeneratedValue
+    private long seq;
+
+    @Column(name = "status_seq")
+    private long statusSeq;
     private String name;
     private int fileCount;
     private double totalSize;
@@ -21,6 +33,14 @@ public class Tablespace {
         this.usedSize = usedSize;
         this.freeSize = freeSize;
         this.usedRatio = usedRatio;
+    }
+
+    public long getSeq() {
+        return seq;
+    }
+
+    public void setSeq(long seq) {
+        this.seq = seq;
     }
 
     public String getName() {
@@ -69,5 +89,27 @@ public class Tablespace {
 
     public void setUsedRatio(double usedRatio) {
         this.usedRatio = usedRatio;
+    }
+
+    public long getStatusSeq() {
+        return statusSeq;
+    }
+
+    public void setStatusSeq(long statusSeq) {
+        this.statusSeq = statusSeq;
+    }
+
+    @Override
+    public String toString() {
+        return "Tablespace{" +
+                "seq=" + seq +
+                ", statusSeq=" + statusSeq +
+                ", name='" + name + '\'' +
+                ", fileCount=" + fileCount +
+                ", totalSize=" + totalSize +
+                ", usedSize=" + usedSize +
+                ", freeSize=" + freeSize +
+                ", usedRatio=" + usedRatio +
+                '}';
     }
 }

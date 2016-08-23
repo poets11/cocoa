@@ -1,17 +1,36 @@
 package mj.cocoa.instance;
 
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import java.io.Serializable;
+import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * Created by poets11 on 2016. 8. 18..
  */
-public class Connection {
+@Embeddable
+public class Connection implements Serializable{
+    private static final long serialVersionUID = 1946879710477755570L;
+
+    private static final String JDBC_URL = "jdbc:oracle:thin:@%s:%s:%s";
+
+    @Column(nullable = false)
     private String host;
+
+    @Column(nullable = false)
     private String port;
+
+    @Column(nullable = false)
     private String sid;
+
+    @Column(nullable = false)
     private String userName;
+
+    @Column(nullable = false)
     private String userPassword;
 
     public Connection() {
@@ -76,17 +95,22 @@ public class Connection {
                 '}';
     }
 
-    public java.sql.Connection getConnection() throws SQLException {
-        String url = getJDBCUrl();
+    @JsonIgnore
+    public boolean isValid() throws SQLException {
+        java.sql.Connection connection = createConnection();
+        Statement statement = connection.createStatement();
+        boolean valid = statement.execute("select sysdate from dual");
+        connection.close();
 
-        DriverManagerDataSource dataSource = new DriverManagerDataSource(url, getUserName(), getUserPassword());
-        dataSource.setDriverClassName("oracle.jdbc.driver.OracleDriver");
-
-        return dataSource.getConnection();
+        return valid;
     }
 
-    private static final String JDBC_URL = "jdbc:oracle:thin:@%s:%s:%s";
-    private String getJDBCUrl() {
+    @JsonIgnore
+    public java.sql.Connection createConnection() throws SQLException {
+        return DriverManager.getConnection(getJdbcUrl(), getUserName(), getUserPassword());
+    }
+
+    private String getJdbcUrl() {
         return String.format(JDBC_URL, getHost(), getPort(), getSid());
     }
 }

@@ -145,14 +145,9 @@
         });
     }
 
-    function registerNewInstance() {
-        $('#myModal').on('shown.bs.modal', function () {
-          $('#myInput').focus()
-        })
-    }
-
     function testConnect() {
         var params = $(".form-horizontal").serialize();
+
         $.get("/connect-check.mj?" + params, function(data) {
             if(data.result == true) {
                 alert('OK');
@@ -161,6 +156,53 @@
             }
         });
     }
+
+    function saveInstance() {
+        var params = $(".form-horizontal").serialize();
+
+        $.get("/instance/save.mj?" + params, function(data) {
+            if(data.result == true) {
+                location.reload();
+            } else {
+                alert(data.message);
+            }
+        });
+    }
+
+    function deleteInstance(instId) {
+        $.get("/instance/delete.mj?id=" + instId, function(data) {
+            if(data.result == true) {
+                location.reload();
+            } else {
+                alert(data.message);
+            }
+        });
+    }
+
+    $('#myModal').on('show.bs.modal', function (event) {
+        var modal = $(this);
+        modal.find(".form-horizontal")[0].reset();
+
+        var target = $(event.relatedTarget);
+
+        var instId = target.attr("inst-id");
+        if(instId) {
+            $.get("/instance/" + instId + ".mj", function(data) {
+                var form = $(".modal-content .form-horizontal");
+                form.find("input[name=seq]").val(data.seq);
+                form.find("input[name=id]").val(data.id);
+                form.find("input[name=name]").val(data.name);
+                form.find("input[name=description]").val(data.description);
+                form.find("input[name=version]").val(data.version);
+                form.find("input[name='connection.host']").val(data.connection.host);
+                form.find("input[name='connection.port']").val(data.connection.port);
+                form.find("input[name='connection.sid']").val(data.connection.sid);
+                form.find("input[name='connection.userName']").val(data.connection.userName);
+                form.find("input[name='connection.userPassword']").val(data.connection.userPassword);
+            });
+        }
+    });
+
 </script>
 </body>
 </html>

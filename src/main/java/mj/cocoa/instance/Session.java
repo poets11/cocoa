@@ -1,8 +1,11 @@
 package mj.cocoa.instance;
 
+import javax.persistence.Embeddable;
+
 /**
  * Created by poets11 on 2016. 8. 18..
  */
+@Embeddable
 public class Session {
     private int activeCount;
     private int totalCount;
@@ -12,6 +15,10 @@ public class Session {
         this.activeCount = activeCount;
         this.totalCount = totalCount;
         this.lockedCount = lockedCount;
+    }
+
+    public Session() {
+
     }
 
     public int getActiveCount() {
@@ -36,5 +43,14 @@ public class Session {
 
     public void setLockedCount(int lockedCount) {
         this.lockedCount = lockedCount;
+    }
+
+    @Override
+    public String toString() {
+        return "Session{" +
+                "activeCount=" + activeCount +
+                ", totalCount=" + totalCount +
+                ", lockedCount=" + lockedCount +
+                '}';
     }
 }

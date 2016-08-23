@@ -2,6 +2,9 @@ package mj.cocoa.web;
 
 import mj.cocoa.instance.Instance;
 import mj.cocoa.instance.InstanceService;
+import mj.cocoa.instance.Status;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,12 +18,14 @@ import java.util.List;
  */
 @Controller
 public class DailyCheckController {
+    private Logger logger = LoggerFactory.getLogger(getClass());
     @Autowired
     private InstanceService instanceService;
 
     @RequestMapping("/daily-check.mj")
     public String index(Model model) {
         List<Instance> instanceList = instanceService.getAllInstanceList();
+        logger.debug("일일점검 조회된 전체 인스턴스 정보 : " + instanceList);
 
         model.addAttribute("instanceList", instanceList);
 
@@ -30,12 +35,10 @@ public class DailyCheckController {
     @RequestMapping("/daily-check/{id}/snippet.mj")
     public String snippet(@PathVariable String id, Model model) {
         try {
-            Thread.sleep(3000);
+            Instance instance = instanceService.reloadInstanceInfo(id);
+            logger.debug("일일점검 조회된 Snippet 인스턴스 정보 : " + instance);
 
-            Instance instance = instanceService.getInstanceById(id);
             model.addAttribute("curInst", instance);
-            model.addAttribute("curStatus", instance.getStatusList().get(0));
-
         } catch (Exception e) {
             Instance instance = instanceService.getInstanceById(id);
             model.addAttribute("curInst", instance);

@@ -1,29 +1,48 @@
 package mj.cocoa.instance;
 
+import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
 /**
  * Created by poets11 on 2016. 8. 18..
  */
-public class Instance {
-    private int seq;
+@Entity
+public class Instance implements Serializable {
+    private static final long serialVersionUID = 247777622189902977L;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long seq;
+
+    @Column(unique = true, nullable = false)
     private String id;
+
+    @Column(nullable = false)
     private String name;
+
     private String description;
     private String version;
+
+    @Temporal(TemporalType.TIMESTAMP)
     private Date updatedDate;
+
+    @Embedded
     private Connection connection;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "instance_seq")
     private List<Status> statusList;
 
     public Instance() {
     }
 
-    public int getSeq() {
+    public Long getSeq() {
         return seq;
     }
 
-    public void setSeq(int seq) {
+    public void setSeq(Long seq) {
         this.seq = seq;
     }
 
