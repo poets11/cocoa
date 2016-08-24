@@ -11,7 +11,7 @@
     </parent>
 
     <groupId>com.mjkim</groupId>
-    <artifactId>cocoa</artifactId>
+    <artifactId>mingauge</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
