@@ -1,5 +1,7 @@
 package mj.cocoa.instance;
 
+import org.hibernate.annotations.BatchSize;
+
 import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
@@ -22,8 +24,9 @@ public class Status {
     @Embedded
     private Session session;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "status_seq")
+    @OrderBy(value = "usedRatio DESC, totalSize DESC, name ASC")
     private List<Tablespace> tablespaceList;
 
     public Status() {

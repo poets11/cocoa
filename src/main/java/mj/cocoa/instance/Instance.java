@@ -1,5 +1,7 @@
 package mj.cocoa.instance;
 
+import org.hibernate.annotations.BatchSize;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
@@ -22,8 +24,10 @@ public class Instance implements Serializable {
     @Column(nullable = false)
     private String name;
 
+    private String host;
     private String description;
     private String version;
+    private String branch;
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedDate;
@@ -31,8 +35,9 @@ public class Instance implements Serializable {
     @Embedded
     private Connection connection;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "instance_seq")
+    @OrderBy(value = "createdDate DESC")
     private List<Status> statusList;
 
     public Instance() {
@@ -102,14 +107,32 @@ public class Instance implements Serializable {
         this.statusList = statusList;
     }
 
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public String getBranch() {
+        return branch;
+    }
+
+    public void setBranch(String branch) {
+        this.branch = branch;
+    }
+
     @Override
     public String toString() {
         return "Instance{" +
                 "seq=" + seq +
                 ", id='" + id + '\'' +
                 ", name='" + name + '\'' +
+                ", host='" + host + '\'' +
                 ", description='" + description + '\'' +
                 ", version='" + version + '\'' +
+                ", branch='" + branch + '\'' +
                 ", updatedDate=" + updatedDate +
                 ", connection=" + connection +
                 ", statusList=" + statusList +

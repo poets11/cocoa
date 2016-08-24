@@ -1,11 +1,24 @@
 package mj.cocoa.instance;
 
 import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.PropertyMap;
+import org.modelmapper.TypeMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.ModelMap;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.ResultSet;
@@ -20,6 +33,8 @@ import java.util.List;
  */
 @Service
 public class InstanceServiceImpl implements InstanceService {
+    private Logger logger = LoggerFactory.getLogger(getClass());
+
     private Query query;
 
     @Autowired
@@ -28,19 +43,53 @@ public class InstanceServiceImpl implements InstanceService {
     @Autowired
     private StatusRepository statusRepository;
 
-    @PostConstruct
-    private void initQuery() throws IOException {
-        query = new Query();
-
+    private void initDefaultSessionSql() throws IOException {
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
 
         InputStream stream = loader.getResourceAsStream("session.sql");
         query.setSession(IOUtils.toString(stream, "UTF-8"));
         IOUtils.closeQuietly(stream);
+    }
 
-        stream = loader.getResourceAsStream("tablespace.sql");
+    private void initDefaultTablespaceSql() throws IOException {
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+
+        InputStream stream = loader.getResourceAsStream("tablespace.sql");
         query.setTablespace(IOUtils.toString(stream, "UTF-8"));
         IOUtils.closeQuietly(stream);
+    }
+
+    @PostConstruct
+    private void initQuery() throws IOException {
+        query = new Query();
+
+        String sessionQueryPath = System.getProperty("sessionQueryPath");
+        if (StringUtils.isEmpty(sessionQueryPath) == true) {
+            initDefaultSessionSql();
+        } else {
+            File file = new File(sessionQueryPath);
+
+            if (file.exists() == false) {
+                initDefaultSessionSql();
+            } else {
+                logger.info("Session Query Read From : " + sessionQueryPath);
+                query.setSession(FileUtils.readFileToString(file, "UTF-8"));
+            }
+        }
+
+        String tablespaceQueryPath = System.getProperty("tablespaceQueryPath");
+        if (StringUtils.isEmpty(tablespaceQueryPath) == true) {
+            initDefaultTablespaceSql();
+        } else {
+            File file = new File(tablespaceQueryPath);
+
+            if (file.exists() == false) {
+                initDefaultTablespaceSql();
+            } else {
+                logger.info("Tablespace Query Read From : " + tablespaceQueryPath);
+                query.setTablespace(FileUtils.readFileToString(file, "UTF-8"));
+            }
+        }
     }
 
     private Session loadSessionInfo(java.sql.Connection connection) throws SQLException {
@@ -142,7 +191,7 @@ public class InstanceServiceImpl implements InstanceService {
 
     @Override
     public List<Instance> getAllInstanceList() {
-        Iterable<Instance> instanceList = instanceRepository.findAll();
+        Iterable<Instance> instanceList = instanceRepository.findAll(new Sort(Sort.Direction.ASC, "branch", "host", "id"));
         return (List<Instance>) instanceList;
     }
 

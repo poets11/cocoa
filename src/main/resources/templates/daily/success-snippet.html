@@ -2,16 +2,16 @@
     <h3 class="box-title">
         [[${curInst.name}]]([[${curInst.id}]]) <i class="fa fa-refresh" th:onclick="'reloadInstance(\'' + ${curInst.id} + '\')'"></i>
     </h3>
-    <div class="box-tools pull-right" th:if="${curInst.statusList != null && curInst.statusList.size() > 0}" th:with="curStatus=${curInst.statusList.get(curInst.statusList.size() - 1)}">
+    <div class="box-tools pull-right" style="top: 9px" th:if="${curInst.statusList != null && curInst.statusList.size() > 0}" th:with="curStatus=${curInst.statusList.get(curInst.statusList.size() - 1)}">
         <span class="label label-default" th:text="${'Latest Update : ' + #dates.format(curStatus.createdDate, 'yyyy/MM/dd/MM HH:mm')}">2016-08-11</span>
-        <span class="label label-danger" th:if="${curStatus.session.lockedCount > 0}" th:text="'L : ' + ${curStatus.session.lockedCount}">L : 2</span>
-        <span class="label label-info" th:text="'A : ' + ${curStatus.session.activeCount}">A : 23</span>
         <span class="label label-success" th:text="'T : ' + ${curStatus.session.totalCount}">T : 36</span>
+        <span class="label label-info" th:text="'A : ' + ${curStatus.session.activeCount}">A : 23</span>
+        <span class="label label-danger" th:if="${curStatus.session.lockedCount > 0}" th:text="'L : ' + ${curStatus.session.lockedCount}">L : 2</span>
     </div>
 </div>
 <!-- /.box-header -->
 <div class="box-body no-padding">
-    <table class="table table-condensed">
+    <table class="table table-condensed table-striped">
         <tbody>
         <tr>
             <th style="text-align:center">#</th>
@@ -23,27 +23,27 @@
             <th style="text-align:center">Use(%)</th>
         </tr>
         <th:block th:if="${curInst.statusList != null && curInst.statusList.size() > 0}" th:with="curStatus=${curInst.statusList.get(curInst.statusList.size() - 1)}">
-        <tr th:each="tablespace, tablespaceStatus : ${curStatus.tablespaceList}">
-            <td style="text-align:center" th:text="${tablespaceStatus.index + 1}">1.</td>
-            <td style="text-align:center" th:text="${tablespace.name}">SYSAUX</td>
-            <td style="text-align:center" th:text="${#numbers.formatInteger(tablespace.fileCount, 1, 'COMMA')}">15</td>
-            <td style="text-align:right" th:text="${#numbers.formatInteger(tablespace.totalSize, 1, 'COMMA') + 'MB'}">11,700MB</td>
-            <td style="text-align:right" th:text="${#numbers.formatInteger(tablespace.freeSize, 1, 'COMMA') + 'MB'}">49MB</td>
-            <td style="text-align:right" th:text="${#numbers.formatInteger(tablespace.usedSize, 1, 'COMMA') + 'MB'}">11,651MB</td>
-            <td>
-                <div class="progress progress-xs" style="position:relative; height:20px; margin-top:0">
-                    <div th:if="${tablespace.usedRatio >= 80}" class="progress-bar progress-bar-danger" th:style="'width:' + ${#numbers.formatInteger(tablespace.usedRatio,1)} + '%'">
-                        <b style="position: absolute; top: 0; left: 0; width: 100%; text-align: center;" th:text="${#numbers.formatDecimal(tablespace.usedRatio, 1,'COMMA', 2, 'POINT') + '%'}">99.55%</b>
+            <tr th:if="${tablespaceStatus.index < 10}" th:each="tablespace, tablespaceStatus : ${curStatus.tablespaceList}">
+                <td style="text-align:center" th:text="${tablespaceStatus.index + 1}">1.</td>
+                <td style="text-align:center" th:text="${tablespace.name}">SYSAUX</td>
+                <td style="text-align:center" th:text="${#numbers.formatInteger(tablespace.fileCount, 1, 'COMMA')}">15</td>
+                <td style="text-align:right" th:text="${#numbers.formatInteger(tablespace.totalSize, 1, 'COMMA') + 'MB'}">11,700MB</td>
+                <td style="text-align:right" th:text="${#numbers.formatInteger(tablespace.freeSize, 1, 'COMMA') + 'MB'}">49MB</td>
+                <td style="text-align:right" th:text="${#numbers.formatInteger(tablespace.usedSize, 1, 'COMMA') + 'MB'}">11,651MB</td>
+                <td>
+                    <div class="progress progress-xs" style="position:relative; height:20px; margin-top:0">
+                        <div th:if="${tablespace.usedRatio >= 90}" class="progress-bar progress-bar-danger" th:style="'width:' + ${#numbers.formatInteger(tablespace.usedRatio,1)} + '%'">
+                            <b style="position: absolute; top: 0; left: 0; width: 100%; text-align: center;" th:text="${#numbers.formatDecimal(tablespace.usedRatio, 1,'COMMA', 2, 'POINT') + '%'}">99.55%</b>
+                        </div>
+                        <div th:if="${tablespace.usedRatio >= 50 && tablespace.usedRatio < 90}" class="progress-bar progress-bar-yellow" th:style="'width:' + ${#numbers.formatInteger(tablespace.usedRatio,1)} + '%'">
+                            <b style="position: absolute; top: 0; left: 0; width: 100%; text-align: center;" th:text="${#numbers.formatDecimal(tablespace.usedRatio, 1,'COMMA', 2, 'POINT') + '%'}">99.55%</b>
+                        </div>
+                        <div th:if="${tablespace.usedRatio < 50}" class="progress-bar progress-bar-success" th:style="'width:' + ${#numbers.formatInteger(tablespace.usedRatio,1)} + '%'">
+                            <b style="position: absolute; top: 0; left: 0; width: 100%; text-align: center;" th:text="${#numbers.formatDecimal(tablespace.usedRatio, 1,'COMMA', 2, 'POINT') + '%'}">99.55%</b>
+                        </div>
                     </div>
-                    <div th:if="${tablespace.usedRatio >= 30 && tablespace.usedRatio < 80}" class="progress-bar progress-bar-yellow" th:style="'width:' + ${#numbers.formatInteger(tablespace.usedRatio,1)} + '%'">
-                        <b style="position: absolute; top: 0; left: 0; width: 100%; text-align: center;" th:text="${#numbers.formatDecimal(tablespace.usedRatio, 1,'COMMA', 2, 'POINT') + '%'}">99.55%</b>
-                    </div>
-                    <div th:if="${tablespace.usedRatio < 30}" class="progress-bar progress-bar-success" th:style="'width:' + ${#numbers.formatInteger(tablespace.usedRatio,1)} + '%'">
-                        <b style="position: absolute; top: 0; left: 0; width: 100%; text-align: center;" th:text="${#numbers.formatDecimal(tablespace.usedRatio, 1,'COMMA', 2, 'POINT') + '%'}">99.55%</b>
-                    </div>
-                </div>
-            </td>
-        </tr>
+                </td>
+            </tr>
         </th:block>
         </tbody>
     </table>

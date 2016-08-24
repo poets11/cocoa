@@ -1,6 +1,7 @@
 package mj.cocoa.instance;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.apache.commons.dbutils.DbUtils;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -19,7 +20,7 @@ public class Connection implements Serializable{
     private static final String JDBC_URL = "jdbc:oracle:thin:@%s:%s:%s";
 
     @Column(nullable = false)
-    private String host;
+    private String ip;
 
     @Column(nullable = false)
     private String port;
@@ -36,20 +37,20 @@ public class Connection implements Serializable{
     public Connection() {
     }
 
-    public Connection(String host, String port, String sid, String userName, String userPassword) {
-        this.host = host;
+    public Connection(String ip, String port, String sid, String userName, String userPassword) {
+        this.ip = ip;
         this.port = port;
         this.sid = sid;
         this.userName = userName;
         this.userPassword = userPassword;
     }
 
-    public String getHost() {
-        return host;
+    public String getIp() {
+        return ip;
     }
 
-    public void setHost(String host) {
-        this.host = host;
+    public void setIp(String ip) {
+        this.ip = ip;
     }
 
     public String getPort() {
@@ -87,7 +88,7 @@ public class Connection implements Serializable{
     @Override
     public String toString() {
         return "Connection{" +
-                "host='" + host + '\'' +
+                "ip='" + ip + '\'' +
                 ", port='" + port + '\'' +
                 ", sid='" + sid + '\'' +
                 ", userName='" + userName + '\'' +
@@ -97,12 +98,18 @@ public class Connection implements Serializable{
 
     @JsonIgnore
     public boolean isValid() throws SQLException {
-        java.sql.Connection connection = createConnection();
-        Statement statement = connection.createStatement();
-        boolean valid = statement.execute("select sysdate from dual");
-        connection.close();
+        java.sql.Connection connection = null;
+        Statement statement = null;
 
-        return valid;
+        try {
+            connection = createConnection();
+            statement = connection.createStatement();
+
+            return statement.execute("select sysdate from dual");
+        } finally {
+            DbUtils.closeQuietly(statement);
+            DbUtils.closeQuietly(connection);
+        }
     }
 
     @JsonIgnore
@@ -111,6 +118,6 @@ public class Connection implements Serializable{
     }
 
     private String getJdbcUrl() {
-        return String.format(JDBC_URL, getHost(), getPort(), getSid());
+        return String.format(JDBC_URL, getIp(), getPort(), getSid());
     }
 }

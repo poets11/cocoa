@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Cocoa Monitor</title>
+    <title>MinGauge</title>
     <!-- Tell the browser to be responsive to screen width -->
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <!-- Bootstrap 3.3.6 -->
@@ -117,6 +117,11 @@
 
             instanceLoader.currentIndex++;
             instanceLoader.loadInstance();
+        }).fail(function(){
+            alert("서버에 접속하는 동안 에러가 발생했습니다. 관리자에게 문의하세요.");
+
+            instanceLoader.currentIndex++;
+            instanceLoader.loadInstance();
         });
     }
 
@@ -142,6 +147,8 @@
         $.get("/daily-check/" + id + "/snippet.mj", function(data) {
             $(selectorQuery).html("");
             $(selectorQuery).html(data);
+        }).fail(function(){
+            alert("서버에 접속하는 동안 에러가 발생했습니다. 관리자에게 문의하세요.");
         });
     }
 
@@ -154,28 +161,47 @@
             } else {
                 alert(data.message);
             }
+        }).fail(function(){
+            alert("서버에 접속하는 동안 에러가 발생했습니다. 관리자에게 문의하세요.");
         });
     }
 
     function saveInstance() {
         var params = $(".form-horizontal").serialize();
 
+        var formOverlay = $("#formOverlay");
+        formOverlay.css("display", "block");
+
         $.get("/instance/save.mj?" + params, function(data) {
             if(data.result == true) {
                 location.reload();
             } else {
                 alert(data.message);
+
+                var formOverlay = $("#formOverlay");
+                formOverlay.css("display", "none");
             }
+        }).fail(function(){
+            alert("서버에 접속하는 동안 에러가 발생했습니다. 관리자에게 문의하세요.");
+
+            var formOverlay = $("#formOverlay");
+            formOverlay.css("display", "none");
         });
     }
 
     function deleteInstance(instId) {
+        if(confirm("진짜?") == false) {
+            return;
+        }
+
         $.get("/instance/delete.mj?id=" + instId, function(data) {
             if(data.result == true) {
                 location.reload();
             } else {
                 alert(data.message);
             }
+        }).fail(function(){
+            alert("서버에 접속하는 동안 에러가 발생했습니다. 관리자에게 문의하세요.");
         });
     }
 
@@ -190,15 +216,19 @@
             $.get("/instance/" + instId + ".mj", function(data) {
                 var form = $(".modal-content .form-horizontal");
                 form.find("input[name=seq]").val(data.seq);
+                form.find("input[name=branch]").val(data.branch);
                 form.find("input[name=id]").val(data.id);
                 form.find("input[name=name]").val(data.name);
                 form.find("input[name=description]").val(data.description);
                 form.find("input[name=version]").val(data.version);
-                form.find("input[name='connection.host']").val(data.connection.host);
+                form.find("input[name=host]").val(data.host);
+                form.find("input[name='connection.ip']").val(data.connection.ip);
                 form.find("input[name='connection.port']").val(data.connection.port);
                 form.find("input[name='connection.sid']").val(data.connection.sid);
                 form.find("input[name='connection.userName']").val(data.connection.userName);
                 form.find("input[name='connection.userPassword']").val(data.connection.userPassword);
+            }).fail(function(){
+                alert("서버에 접속하는 동안 에러가 발생했습니다. 관리자에게 문의하세요.");
             });
         }
     });
