@@ -1,6 +1,6 @@
-package mj.cocoa.instance;
+package mj.kokoa.instance.repository;
 
-import org.springframework.data.repository.CrudRepository;
+import mj.kokoa.instance.entity.Instance;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 /**

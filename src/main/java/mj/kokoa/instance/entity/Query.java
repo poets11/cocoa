@@ -1,4 +1,4 @@
-package mj.cocoa.instance;
+package mj.kokoa.instance.entity;
 
 /**
  * Created by poets11 on 2016. 8. 22..

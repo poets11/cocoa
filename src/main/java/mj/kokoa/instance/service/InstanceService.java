@@ -1,4 +1,6 @@
-package mj.cocoa.instance;
+package mj.kokoa.instance.service;
+
+import mj.kokoa.instance.entity.Instance;
 
 import java.util.List;
 

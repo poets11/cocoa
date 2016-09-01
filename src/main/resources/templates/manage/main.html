@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org" layout:decorator="layout/template">
 <head>
-    <title>MinGauge</title>
+    <title>Kokoa</title>
 </head>
 <body>
     <!-- Content Wrapper. Contains page content -->
@@ -58,7 +58,7 @@
                                         <i class="fa fa-edit" data-toggle="modal" data-target="#myModal" th:attr="inst-id=${instance.id}"></i>
                                     </td>
                                     <td style="text-align:center">
-                                        <i class="fa fa-trash-o" th:onclick="'deleteInstance(\'' + ${instance.id} + '\')'"></i>
+                                        <i class="fa fa-trash-o" th:onclick="'instanceManage.deleteInstance(\'' + ${instance.id} + '\')'"></i>
                                     </td>
                                 </tr>
                                 </tbody>
@@ -164,9 +164,9 @@
                                 </div>
                                 <!-- /.box-body -->
                                 <div class="box-footer">
-                                    <button type="button" class="btn btn-sm btn-default btn-flat" onclick="testConnect()">Test Connection</button>
+                                    <button type="button" class="btn btn-sm btn-default btn-flat" onclick="instanceManage.testConnect()">Test Connection</button>
                                     <span class="pull-right">
-                                        <button type="button" class="btn btn-sm btn-info  btn-flat" onclick="saveInstance()">Save</button>&nbsp;
+                                        <button type="button" class="btn btn-sm btn-info  btn-flat" onclick="instanceManage.saveInstance()">Save</button>&nbsp;
                                         <button type="button" class="btn btn-sm btn-info  btn-flat" onclick="$('#myModal').modal('toggle')">Cancel</button>
                                     </span>
                                 </div>
@@ -181,6 +181,8 @@
             </div>
         </section>
         <!-- /.content -->
+
+        <script src="/js/instance-manage.js"></script>
     </div>
     <!-- /.content-wrapper -->
 </body>

@@ -1,20 +1,17 @@
-package mj.cocoa.instance;
+package mj.kokoa.instance.service;
 
+import mj.kokoa.common.KokoaException;
+import mj.kokoa.instance.entity.*;
+import mj.kokoa.instance.repository.InstanceRepository;
+import mj.kokoa.instance.repository.StatusRepository;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.PropertyMap;
-import org.modelmapper.TypeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.ModelMap;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
@@ -108,7 +105,7 @@ public class InstanceServiceImpl implements InstanceService {
 
                 return session;
             } else {
-                throw new CocoaException("조회된 데이터가 없습니다.");
+                throw new KokoaException("조회된 데이터가 없습니다.");
             }
         } finally {
             DbUtils.closeQuietly(resultSet);
@@ -143,7 +140,7 @@ public class InstanceServiceImpl implements InstanceService {
             if (tablespaceList.size() > 0) {
                 return tablespaceList;
             } else {
-                throw new CocoaException("조회된 데이터가 없습니다.");
+                throw new KokoaException("조회된 데이터가 없습니다.");
             }
         } finally {
             DbUtils.closeQuietly(resultSet);
@@ -178,7 +175,7 @@ public class InstanceServiceImpl implements InstanceService {
 
             return instance;
         } catch (SQLException e) {
-            throw new CocoaException(e.getMessage(), e);
+            throw new KokoaException(e.getMessage(), e);
         } finally {
             DbUtils.closeQuietly(connection);
         }

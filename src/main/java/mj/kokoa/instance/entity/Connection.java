@@ -1,4 +1,4 @@
-package mj.cocoa.instance;
+package mj.kokoa.instance.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.dbutils.DbUtils;

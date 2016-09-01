@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org" layout:decorator="layout/template">
 <head>
-    <title>MinGauge</title>
+    <title>Kokoa</title>
 </head>
 <body>
     <!-- Content Wrapper. Contains page content -->
@@ -9,8 +9,23 @@
         <!-- Content Header (Page header) -->
         <section class="content-header">
             <h1>
-                일일 점검 <i class="fa fa-refresh" th:onclick="'reloadAllInstance()'"></i>
-                <small>Tablespace | Session</small>
+                일일 점검 <i class="fa fa-refresh" th:onclick="'dailyInspection.reloadAllInstance()'"></i>
+                <small style="vertical-align:top; margin-top:3px; font-size:16px">
+                    <select name="branch">
+                        <option value="">전체</option>
+                        <option>CJ제당(국내)</option>
+                        <option>CJ제당(해외)</option>
+                        <option>CJ푸드빌</option>
+                        <option>CJ프레시웨이</option>
+                        <option>CJ헬스케어</option>
+                        <option>CJ대한통운</option>
+                        <option>CJ오쇼핑</option>
+                        <option>CJCGV</option>
+                        <option>CJE&M</option>
+                        <option>CJone</option>
+                        <option>CJ그룹공통</option>
+                    </select>
+                </small>
             </h1>
             <ol class="breadcrumb">
                 <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
@@ -25,8 +40,8 @@
                 <div class="col-md-6" th:with="curInst=${instanceList.get(instStatus.index)}">
                     <div class="box" th:id="'box-' + ${curInst.id}" >
                         <div class="box-header">
-                            <h3 class="box-title">[[${'[' + curInst.branch + ']'}]]
-                                [[${curInst.name}]]([[${curInst.id}]]) <i class="fa fa-refresh" th:onclick="'reloadInstance(\'' + ${curInst.id} + '\')'"></i>
+                            <h3 class="box-title" style="font-size:15px; font-weight:bold">[[${'[' + curInst.branch + ']'}]]
+                                [[${curInst.name}]]([[${curInst.id}]]) <i class="fa fa-refresh" th:onclick="'dailyInspection.reloadInstance(\'' + ${curInst.id} + '\')'"></i>
                             </h3>
                             <div class="box-tools pull-right" style="top: 9px" th:if="${curInst.statusList != null && curInst.statusList.size() > 0}" th:with="curStatus=${curInst.statusList.get(curInst.statusList.size() - 1)}">
                                 <span class="label label-default" th:text="${'Latest Update : ' + #dates.format(curStatus.createdDate, 'yyyy/MM/dd/MM HH:mm')}">2016-08-11</span>
@@ -81,8 +96,8 @@
                 <div class="col-md-6" th:if="${instStatus.index + 1 < instanceList.size()}" th:with="curInst=${instanceList.get(instStatus.index + 1)}">
                     <div class="box" th:id="'box-' + ${curInst.id}">
                         <div class="box-header">
-                            <h3 class="box-title">
-                                [[${curInst.name}]]([[${curInst.id}]]) <i class="fa fa-refresh" th:onclick="'reloadInstance(\'' + ${curInst.id} + '\')'"></i>
+                            <h3 class="box-title" style="font-size:15px; font-weight:bold">
+                                [[${curInst.name}]]([[${curInst.id}]]) <i class="fa fa-refresh" th:onclick="'dailyInspection.reloadInstance(\'' + ${curInst.id} + '\')'"></i>
                             </h3>
                             <div class="box-tools pull-right" style="top: 9px" th:if="${curInst.statusList != null && curInst.statusList.size() > 0}" th:with="curStatus=${curInst.statusList.get(curInst.statusList.size() - 1)}">
                                 <span class="label label-default" th:text="${'Latest Update : ' + #dates.format(curStatus.createdDate, 'yyyy/MM/dd/MM HH:mm')}">2016-08-11</span>
@@ -139,6 +154,8 @@
 
         </section>
         <!-- /.content -->
+
+        <script src="/js/daily-inspection.js"></script>
     </div>
     <!-- /.content-wrapper -->
 </body>

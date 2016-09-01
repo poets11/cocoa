@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <include resource="org/springframework/boot/logging/logback/base.xml" />
-    <logger name="mj.cocoa" level="DEBUG" />
+    <logger name="mj.kokoa" level="DEBUG" />
     <logger name="nz.net" level="WARN" />
     <!--<springProfile name="staging">-->
         <!--<logger name="sample.logback" level="TRACE" />-->

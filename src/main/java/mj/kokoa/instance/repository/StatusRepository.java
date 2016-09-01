@@ -1,5 +1,6 @@
-package mj.cocoa.instance;
+package mj.kokoa.instance.repository;
 
+import mj.kokoa.instance.entity.Status;
 import org.springframework.data.repository.CrudRepository;
 
 /**

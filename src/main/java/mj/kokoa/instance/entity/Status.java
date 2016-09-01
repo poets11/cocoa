@@ -1,6 +1,4 @@
-package mj.cocoa.instance;
-
-import org.hibernate.annotations.BatchSize;
+package mj.kokoa.instance.entity;
 
 import javax.persistence.*;
 import java.util.Date;

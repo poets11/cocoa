@@ -1,4 +1,4 @@
-package mj.cocoa.instance;
+package mj.kokoa.instance.entity;
 
 import javax.persistence.Embeddable;
 
