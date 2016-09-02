@@ -148,6 +148,39 @@ public class InstanceServiceImpl implements InstanceService {
         }
     }
 
+    private void setVariation(Instance instance) {
+        List<Status> statusList = instance.getStatusList();
+
+        List<Tablespace> preTablespaceList = null;
+        for (int i = 0; i < statusList.size(); i++) {
+            Status status = statusList.get(i);
+            List<Tablespace> tablespaceList = status.getTablespaceList();
+
+            if (preTablespaceList == null) {
+                preTablespaceList = tablespaceList;
+                continue;
+            }
+
+            for (int j = 0; j < tablespaceList.size(); j++) {
+                Tablespace tablespace = tablespaceList.get(j);
+
+                for (int k = 0; k < preTablespaceList.size(); k++) {
+                    Tablespace preTablespace = preTablespaceList.get(k);
+
+                    if (tablespace.getName().equals(preTablespace.getName()) == true) {
+                        double variationSize = tablespace.getUsedSize() - preTablespace.getUsedSize();
+                        double variationRatio = tablespace.getUsedRatio() - preTablespace.getUsedRatio();
+
+                        tablespace.setVariationSize(variationSize);
+                        tablespace.setVariationRatio(variationRatio);
+
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     @Override
     public Instance reloadInstanceInfo(String id) {
         java.sql.Connection connection = null;
@@ -173,6 +206,8 @@ public class InstanceServiceImpl implements InstanceService {
 
             statusRepository.save(status);
 
+            setVariation(instance);
+
             return instance;
         } catch (SQLException e) {
             throw new KokoaException(e.getMessage(), e);
@@ -188,8 +223,14 @@ public class InstanceServiceImpl implements InstanceService {
 
     @Override
     public List<Instance> getAllInstanceList() {
-        Iterable<Instance> instanceList = instanceRepository.findAll(new Sort(Sort.Direction.ASC, "branch", "host", "id"));
-        return (List<Instance>) instanceList;
+        List<Instance> instanceList = (List<Instance>) instanceRepository.findAll(new Sort(Sort.Direction.ASC, "branch", "host", "id"));
+
+        for (int i = 0; i < instanceList.size(); i++) {
+            Instance instance = instanceList.get(i);
+            setVariation(instance);
+        }
+
+        return instanceList;
     }
 
     @Override

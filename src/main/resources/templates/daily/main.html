@@ -11,6 +11,7 @@
             <h1>
                 일일 점검 <i class="fa fa-refresh" th:onclick="'dailyInspection.reloadAllInstance()'"></i>
                 <small style="vertical-align:top; margin-top:3px; font-size:16px">
+                    - Tablespace | Session
                     <select name="branch">
                         <option value="">전체</option>
                         <option>CJ제당(국내)</option>
@@ -56,12 +57,13 @@
                                 <tbody>
                                 <tr>
                                     <th style="text-align:center">#</th>
-                                    <th style="text-align:center">Tablespace Name</th>
-                                    <th style="text-align:center">File(Cnt)</th>
-                                    <th style="text-align:center">Size(MB)</th>
-                                    <th style="text-align:center">Free(MB)</th>
-                                    <th style="text-align:center">Use(MB)</th>
-                                    <th style="text-align:center">Use(%)</th>
+                                    <th style="text-align:center">이름</th>
+                                    <th style="text-align:center">파일</th>
+                                    <th style="text-align:center">전체</th>
+                                    <th style="text-align:center">여유</th>
+                                    <th style="text-align:center">사용</th>
+                                    <th style="text-align:center">비율</th>
+                                    <th style="text-align:center">증감</th>
                                 </tr>
                                 <th:block th:if="${curInst.statusList != null && curInst.statusList.size() > 0}" th:with="curStatus=${curInst.statusList.get(curInst.statusList.size() - 1)}">
                                     <tr th:if="${tablespaceStatus.index < 5}" th:each="tablespace, tablespaceStatus : ${curStatus.tablespaceList}">
@@ -82,6 +84,17 @@
                                                 <div th:if="${tablespace.usedRatio < 50}" class="progress-bar progress-bar-success" th:style="'width:' + ${#numbers.formatInteger(tablespace.usedRatio,1)} + '%'">
                                                     <b style="position: absolute; top: 0; left: 0; width: 100%; text-align: center;" th:text="${#numbers.formatDecimal(tablespace.usedRatio, 1,'COMMA', 2, 'POINT') + '%'}">99.55%</b>
                                                 </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="progress progress-xs" style="position:relative; height:20px; margin-top:0">
+                                                <div th:if="${tablespace.variationSize > 0}" class="progress-bar progress-bar-danger" th:style="'width:' + ${#numbers.formatInteger(tablespace.variationRatio,1)} + '%'">
+                                                    <b style="position: absolute; top: 0; left: 0; width: 100%; text-align: center;" th:text="${#numbers.formatDecimal(tablespace.variationRatio, 1,'COMMA', 2, 'POINT') + '%'}">99.55%</b>
+                                                </div>
+                                                <div th:if="${tablespace.variationSize < 0}" class="progress-bar progress-bar-success" th:style="'width:' + ${#numbers.formatInteger(tablespace.variationRatio,1)} + '%'">
+                                                    <span style="position: absolute; top: 0; left: 0; width: 100%; text-align: center;" th:text="${#numbers.formatDecimal(tablespace.variationRatio, 1,'COMMA', 2, 'POINT') + '%'}">99.55%</span>
+                                                </div>
+                                                <b th:if="${tablespace.variationSize == 0}" style="position: absolute; top: 0; left: 0; width: 100%; font-size:12px; text-align: center;">0%</b>
                                             </div>
                                         </td>
                                     </tr>
@@ -112,15 +125,16 @@
                                 <tbody>
                                 <tr>
                                     <th style="text-align:center">#</th>
-                                    <th style="text-align:center">Tablespace Name</th>
-                                    <th style="text-align:center">File(Cnt)</th>
-                                    <th style="text-align:center">Size(MB)</th>
-                                    <th style="text-align:center">Free(MB)</th>
-                                    <th style="text-align:center">Use(MB)</th>
-                                    <th style="text-align:center">Use(%)</th>
+                                    <th style="text-align:center">이름</th>
+                                    <th style="text-align:center">파일(Cnt)</th>
+                                    <th style="text-align:center">전체(MB)</th>
+                                    <th style="text-align:center">여유(MB)</th>
+                                    <th style="text-align:center">사용(MB)</th>
+                                    <th style="text-align:center">비율(%)</th>
+                                    <th style="text-align:center">증감(%)</th>
                                 </tr>
                                 <th:block th:if="${curInst.statusList != null && curInst.statusList.size() > 0}" th:with="curStatus=${curInst.statusList.get(curInst.statusList.size() - 1)}">
-                                    <tr th:each="tablespace, tablespaceStatus : ${curStatus.tablespaceList}">
+                                    <tr th:if="${tablespaceStatus.index < 5}" th:each="tablespace, tablespaceStatus : ${curStatus.tablespaceList}">
                                         <td style="text-align:center" th:text="${tablespaceStatus.index + 1}">1.</td>
                                         <td style="text-align:center" th:text="${tablespace.name}">SYSAUX</td>
                                         <td style="text-align:center" th:text="${#numbers.formatInteger(tablespace.fileCount, 1, 'COMMA')}">15</td>
@@ -138,6 +152,17 @@
                                                 <div th:if="${tablespace.usedRatio < 50}" class="progress-bar progress-bar-success" th:style="'width:' + ${#numbers.formatInteger(tablespace.usedRatio,1)} + '%'">
                                                     <b style="position: absolute; top: 0; left: 0; width: 100%; text-align: center;" th:text="${#numbers.formatDecimal(tablespace.usedRatio, 1,'COMMA', 2, 'POINT') + '%'}">99.55%</b>
                                                 </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="progress progress-xs" style="position:relative; height:20px; margin-top:0">
+                                                <div th:if="${tablespace.variationSize > 0}" class="progress-bar progress-bar-danger" th:style="'width:' + ${#numbers.formatInteger(tablespace.variationRatio,1)} + '%'">
+                                                    <b style="position: absolute; top: 0; left: 0; width: 100%; text-align: center;" th:text="${#numbers.formatDecimal(tablespace.variationRatio, 1,'COMMA', 2, 'POINT') + '%'}">99.55%</b>
+                                                </div>
+                                                <div th:if="${tablespace.variationSize < 0}" class="progress-bar progress-bar-success" th:style="'width:' + ${#numbers.formatInteger(tablespace.variationRatio,1)} + '%'">
+                                                    <span style="position: absolute; top: 0; left: 0; width: 100%; text-align: center;" th:text="${#numbers.formatDecimal(tablespace.variationRatio, 1,'COMMA', 2, 'POINT') + '%'}">99.55%</span>
+                                                </div>
+                                                <b th:if="${tablespace.variationSize == 0}" style="position: absolute; top: 0; left: 0; width: 100%; font-size:12px; text-align: center;">0%</b>
                                             </div>
                                         </td>
                                     </tr>

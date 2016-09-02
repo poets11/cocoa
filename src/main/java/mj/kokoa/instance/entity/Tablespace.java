@@ -1,9 +1,6 @@
 package mj.kokoa.instance.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 /**
  * Created by poets11 on 2016. 8. 18..
@@ -22,6 +19,11 @@ public class Tablespace {
     private double usedSize;
     private double freeSize;
     private double usedRatio;
+
+    @Transient
+    private double variationSize;
+    @Transient
+    private double variationRatio;
 
     public Tablespace() {
     }
@@ -111,5 +113,21 @@ public class Tablespace {
                 ", freeSize=" + freeSize +
                 ", usedRatio=" + usedRatio +
                 '}';
+    }
+
+    public void setVariationSize(double variationSize) {
+        this.variationSize = variationSize;
+    }
+
+    public double getVariationSize() {
+        return variationSize;
+    }
+
+    public void setVariationRatio(double variationRatio) {
+        this.variationRatio = variationRatio;
+    }
+
+    public double getVariationRatio() {
+        return variationRatio;
     }
 }
