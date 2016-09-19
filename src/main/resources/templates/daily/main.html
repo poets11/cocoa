@@ -12,19 +12,19 @@
                 일일 점검 <i class="fa fa-refresh" th:onclick="'dailyInspection.reloadAllInstance()'"></i>
                 <small style="vertical-align:top; margin-top:3px; font-size:16px">
                     - Tablespace | Session
-                    <select name="branch">
+                    <select name="branch" onchange="dailyInspection.changeBranch(this.value)">
                         <option value="">전체</option>
-                        <option>CJ제당(국내)</option>
-                        <option>CJ제당(해외)</option>
-                        <option>CJ푸드빌</option>
-                        <option>CJ프레시웨이</option>
-                        <option>CJ헬스케어</option>
-                        <option>CJ대한통운</option>
-                        <option>CJ오쇼핑</option>
-                        <option>CJCGV</option>
-                        <option>CJE&M</option>
-                        <option>CJone</option>
-                        <option>CJ그룹공통</option>
+                        <option th:selected="(${param.branch != null && 'CJ제당(국내)' == param.branch[0]})">CJ제당(국내)</option>
+                        <option th:selected="(${param.branch != null && 'CJ제당(해외)' == param.branch[0]})">CJ제당(해외)</option>
+                        <option th:selected="(${param.branch != null && 'CJ푸드빌' == param.branch[0]})">CJ푸드빌</option>
+                        <option th:selected="(${param.branch != null && 'CJ프레시웨이' == param.branch[0]})">CJ프레시웨이</option>
+                        <option th:selected="(${param.branch != null && 'CJ헬스케어' == param.branch[0]})">CJ헬스케어</option>
+                        <option th:selected="(${param.branch != null && 'CJ대한통운' == param.branch[0]})">CJ대한통운</option>
+                        <option th:selected="(${param.branch != null && 'CJ오쇼핑' == param.branch[0]})">CJ오쇼핑</option>
+                        <option th:selected="(${param.branch != null && 'CJCGV' == param.branch[0]})">CJCGV</option>
+                        <option th:selected="(${param.branch != null && 'CJE&M' == param.branch[0]})">CJE&M</option>
+                        <option th:selected="(${param.branch != null && 'CJone' == param.branch[0]})">CJone</option>
+                        <option th:selected="(${param.branch != null && 'CJ그룹공통' == param.branch[0]})">CJ그룹공통</option>
                     </select>
                 </small>
             </h1>
@@ -48,6 +48,7 @@
                                 <span class="label label-default" th:text="${'Latest Update : ' + #dates.format(curStatus.createdDate, 'yyyy/MM/dd/MM HH:mm')}">2016-08-11</span>
                                 <span class="label label-success" th:text="'T : ' + ${curStatus.session.totalCount}">T : 36</span>
                                 <span class="label label-info" th:text="'A : ' + ${curStatus.session.activeCount}">A : 23</span>
+                                <!-- /* -->Locked 세션이 0개 이상일때만 표시<!-- */ -->
                                 <span class="label label-danger" th:if="${curStatus.session.lockedCount > 0}" th:text="'L : ' + ${curStatus.session.lockedCount}">L : 2</span>
                             </div>
                         </div>
@@ -66,7 +67,8 @@
                                     <th style="text-align:center">증감</th>
                                 </tr>
                                 <th:block th:if="${curInst.statusList != null && curInst.statusList.size() > 0}" th:with="curStatus=${curInst.statusList.get(curInst.statusList.size() - 1)}">
-                                    <tr th:if="${tablespaceStatus.index < 5}" th:each="tablespace, tablespaceStatus : ${curStatus.tablespaceList}">
+                                    <!-- /* -->최대 100개의 테이블 스페이스 표시<!-- */ -->
+                                    <tr th:if="${tablespaceStatus.index < 100}" th:each="tablespace, tablespaceStatus : ${curStatus.tablespaceList}">
                                         <td style="text-align:center" th:text="${tablespaceStatus.index + 1}">1.</td>
                                         <td style="text-align:center" th:text="${tablespace.name}">SYSAUX</td>
                                         <td style="text-align:center" th:text="${#numbers.formatInteger(tablespace.fileCount, 1, 'COMMA')}">15</td>

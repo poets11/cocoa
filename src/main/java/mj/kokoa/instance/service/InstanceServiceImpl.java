@@ -4,13 +4,13 @@ import mj.kokoa.common.KokoaException;
 import mj.kokoa.instance.entity.*;
 import mj.kokoa.instance.repository.InstanceRepository;
 import mj.kokoa.instance.repository.StatusRepository;
+import mj.kokoa.instance.web.vo.InstanceCondition;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -185,7 +185,7 @@ public class InstanceServiceImpl implements InstanceService {
     public Instance reloadInstanceInfo(String id) {
         java.sql.Connection connection = null;
         try {
-            Instance instance = instanceRepository.findInstanceById(id);
+            Instance instance = instanceRepository.findById(id);
 
             connection = instance.getConnection().createConnection();
             connection.setReadOnly(true);
@@ -218,12 +218,12 @@ public class InstanceServiceImpl implements InstanceService {
 
     @Override
     public Instance getInstanceById(String id) {
-        return instanceRepository.findInstanceById(id);
+        return instanceRepository.findById(id);
     }
 
     @Override
-    public List<Instance> getAllInstanceList() {
-        List<Instance> instanceList = (List<Instance>) instanceRepository.findAll(new Sort(Sort.Direction.ASC, "branch", "host", "id"));
+    public List<Instance> getAllInstanceList(InstanceCondition instanceCondition) {
+        List<Instance> instanceList = (List<Instance>) instanceRepository.findAll(instanceCondition.convertPredicate());
 
         for (int i = 0; i < instanceList.size(); i++) {
             Instance instance = instanceList.get(i);
@@ -240,7 +240,7 @@ public class InstanceServiceImpl implements InstanceService {
 
     @Override
     public boolean deleteInstanceById(String id) {
-        Instance instance = instanceRepository.findInstanceById(id);
+        Instance instance = instanceRepository.findById(id);
         instanceRepository.delete(instance);
         return true;
     }

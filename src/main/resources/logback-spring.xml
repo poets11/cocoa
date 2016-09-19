@@ -3,7 +3,7 @@
     <include resource="org/springframework/boot/logging/logback/base.xml" />
     <logger name="mj.kokoa" level="DEBUG" />
     <logger name="nz.net" level="WARN" />
-    <!--<springProfile name="staging">-->
-        <!--<logger name="sample.logback" level="TRACE" />-->
-    <!--</springProfile>-->
+    <logger name="org.hibernate" level="INFO" />
+    <logger name="org.hibernate.SQL" level="DEBUG" />
+    <logger name="org.hibernate.type.descriptor.sql" level="TRACE" />
 </configuration>

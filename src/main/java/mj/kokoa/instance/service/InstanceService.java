@@ -1,6 +1,7 @@
 package mj.kokoa.instance.service;
 
 import mj.kokoa.instance.entity.Instance;
+import mj.kokoa.instance.web.vo.InstanceCondition;
 
 import java.util.List;
 
@@ -10,7 +11,7 @@ import java.util.List;
 public interface InstanceService {
     Instance reloadInstanceInfo(String id);
     Instance getInstanceById(String id);
-    List<Instance> getAllInstanceList();
+    List<Instance> getAllInstanceList(InstanceCondition instanceCondition);
     Instance save(Instance instance);
     boolean deleteInstanceById(String id);
 }

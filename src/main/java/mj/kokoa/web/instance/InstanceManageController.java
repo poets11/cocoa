@@ -2,9 +2,11 @@ package mj.kokoa.web.instance;
 
 import mj.kokoa.instance.entity.Instance;
 import mj.kokoa.instance.service.InstanceService;
+import mj.kokoa.instance.web.vo.InstanceCondition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,8 +28,10 @@ public class InstanceManageController {
     private InstanceService instanceService;
 
     @RequestMapping("/instance-manage/main.mj")
-    public String manageMain(Model model) {
-        List<Instance> instanceList = instanceService.getAllInstanceList();
+    public String manageMain(Model model, InstanceCondition instanceCondition) {
+        instanceCondition.setSort(new Sort(Sort.Direction.ASC, "branch", "host", "id"));
+
+        List<Instance> instanceList = instanceService.getAllInstanceList(instanceCondition);
         logger.debug("조회된 인스턴스 수 : " + instanceList.size());
 
         model.addAttribute("instanceList", instanceList);

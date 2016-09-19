@@ -66,3 +66,7 @@ dailyInspection.reloadInstance = function(id) {
         alert("서버에 접속하는 동안 에러가 발생했습니다. 관리자에게 문의하세요.");
     });
 }
+
+dailyInspection.changeBranch = function(branch) {
+    location.href = "/daily-inspection/main.mj?branch=" + branch;
+}
