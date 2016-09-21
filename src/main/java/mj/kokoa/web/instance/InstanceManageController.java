@@ -1,5 +1,6 @@
 package mj.kokoa.web.instance;
 
+import mj.kokoa.common.ExceptionUtil;
 import mj.kokoa.instance.entity.Instance;
 import mj.kokoa.instance.service.InstanceService;
 import mj.kokoa.instance.web.vo.InstanceCondition;
@@ -54,6 +55,7 @@ public class InstanceManageController {
 
             result.put("result", false);
             result.put("message", e.getMessage());
+            result.put("stackTrace", ExceptionUtil.getStackTrace(e));
         }
 
         return result;

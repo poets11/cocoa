@@ -14,6 +14,7 @@ instanceManage.testConnect = function() {
             alert('OK');
         } else {
             alert(data.message);
+            console.log(data.stackTrace);
         }
     });
 
@@ -90,7 +91,7 @@ instanceManage.doModal = function(modal, relatedTarget) {
         $.get(url, function(data) {
             var form = $(".modal-content .form-horizontal");
             form.find("input[name=seq]").val(data.seq);
-            form.find("input[name=branch]").val(data.branch);
+            form.find("select[name=branch]").val(data.branch);
             form.find("input[name=id]").val(data.id);
             form.find("input[name=name]").val(data.name);
             form.find("input[name=description]").val(data.description);

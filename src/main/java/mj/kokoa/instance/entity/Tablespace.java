@@ -9,22 +9,20 @@ import javax.persistence.*;
  */
 @Data
 @Entity
+@Table(name = "TB_DAILY_TS")
 public class Tablespace {
-    @Id
-    @GeneratedValue
-    private long seq;
+    @EmbeddedId
+    private TablespaceId tablespaceId;
 
-    @Column(name = "status_seq")
-    private long statusSeq;
-    private String name;
+    @Column(name = "FILE_CNT")
     private int fileCount;
+
     private double totalSize;
     private double usedSize;
     private double freeSize;
+    @Column(name = "USED_RT")
     private double usedRatio;
 
     @Transient
-    private double variationSize;
-    @Transient
-    private double variationRatio;
+    private double variationAmount;
 }

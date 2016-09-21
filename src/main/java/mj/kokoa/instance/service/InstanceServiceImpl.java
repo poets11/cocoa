@@ -126,8 +126,7 @@ public class InstanceServiceImpl implements InstanceService {
             while (resultSet.next()) {
                 Tablespace tablespace = new Tablespace();
 
-                tablespace.setStatusSeq(status.getSeq());
-                tablespace.setName(resultSet.getString("tablespace_name"));
+                tablespace.setTablespaceId(new TablespaceId(status.getStatusId(), resultSet.getString("tablespace_name")));
                 tablespace.setFileCount(resultSet.getInt("file_cnt"));
                 tablespace.setTotalSize(resultSet.getDouble("size_mb"));
                 tablespace.setFreeSize(resultSet.getDouble("free_mb"));
@@ -167,13 +166,10 @@ public class InstanceServiceImpl implements InstanceService {
                 for (int k = 0; k < preTablespaceList.size(); k++) {
                     Tablespace preTablespace = preTablespaceList.get(k);
 
-                    if (tablespace.getName().equals(preTablespace.getName()) == true) {
-                        double variationSize = tablespace.getUsedSize() - preTablespace.getUsedSize();
-                        double variationRatio = tablespace.getUsedRatio() - preTablespace.getUsedRatio();
+                    if (tablespace.getTablespaceId().getName().equals(preTablespace.getTablespaceId().getName()) == true) {
+                        double variationAmount = tablespace.getUsedSize() - preTablespace.getUsedSize();
 
-                        tablespace.setVariationSize(variationSize);
-                        tablespace.setVariationRatio(variationRatio);
-
+                        tablespace.setVariationAmount(variationAmount);
                         break;
                     }
                 }
@@ -191,8 +187,7 @@ public class InstanceServiceImpl implements InstanceService {
             connection.setReadOnly(true);
 
             Status status = new Status();
-            status.setCreatedDate(new Date());
-            status.setInstanceSeq(instance.getSeq());
+            status.setStatusId(new StatusId(instance.getSeq(), new Date()));
             status.setSession(loadSessionInfo(connection));
 
             List<Status> statusList = instance.getStatusList();

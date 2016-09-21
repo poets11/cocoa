@@ -25,13 +25,13 @@ public class Connection implements Serializable{
     @Column(nullable = false)
     private String port;
 
-    @Column(nullable = false)
+    @Column(name = "SERVICE_NM", nullable = false)
     private String sid;
 
-    @Column(nullable = false)
+    @Column(name = "USER_NM", nullable = false)
     private String userName;
 
-    @Column(nullable = false)
+    @Column(name = "PW", nullable = false)
     private String userPassword;
 
     @JsonIgnore

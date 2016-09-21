@@ -1,5 +1,6 @@
 package mj.kokoa.web.instance;
 
+import mj.kokoa.common.ExceptionUtil;
 import mj.kokoa.instance.entity.Instance;
 import mj.kokoa.instance.service.InstanceService;
 import mj.kokoa.instance.web.vo.InstanceCondition;
@@ -59,6 +60,7 @@ public class DailyInspectionController {
             Instance instance = instanceService.getInstanceById(id);
             model.addAttribute("curInst", instance);
             model.addAttribute("message", e.getMessage());
+            model.addAttribute("stackTrace", ExceptionUtil.getStackTrace(e));
 
             return "daily/fail-snippet";
         }
