@@ -40,53 +40,36 @@ public class InstanceServiceImpl implements InstanceService {
     @Autowired
     private StatusRepository statusRepository;
 
-    private void initDefaultSessionSql() throws IOException {
+    private String readFileFromPropertyOrClassPath(String propKey, String pathInClassPath) throws IOException {
+        String filePath = System.getProperty(propKey);
+        if (StringUtils.hasText(filePath) == true) {
+            File file = new File(filePath);
+
+            if (file.exists() == true) {
+                logger.info("read file from property. key : " + propKey + " / value : " + filePath);
+                return FileUtils.readFileToString(file, "UTF-8");
+            }
+        }
+
+        logger.info("read file from classpath. file name : " + pathInClassPath);
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
 
-        InputStream stream = loader.getResourceAsStream("session.sql");
-        query.setSession(IOUtils.toString(stream, "UTF-8"));
-        IOUtils.closeQuietly(stream);
-    }
+        InputStream stream = loader.getResourceAsStream(pathInClassPath);
+        String content = IOUtils.toString(stream, "UTF-8");
 
-    private void initDefaultTablespaceSql() throws IOException {
-        ClassLoader loader = Thread.currentThread().getContextClassLoader();
-
-        InputStream stream = loader.getResourceAsStream("tablespace.sql");
-        query.setTablespace(IOUtils.toString(stream, "UTF-8"));
         IOUtils.closeQuietly(stream);
+        return content;
     }
 
     @PostConstruct
     private void initQuery() throws IOException {
         query = new Query();
 
-        String sessionQueryPath = System.getProperty("sessionQueryPath");
-        if (StringUtils.isEmpty(sessionQueryPath) == true) {
-            initDefaultSessionSql();
-        } else {
-            File file = new File(sessionQueryPath);
+        query.setSession(readFileFromPropertyOrClassPath("sessionQueryPath", "session.sql"));
+        query.setTablespace(readFileFromPropertyOrClassPath("tablespaceQueryPath", "tablespace.sql"));
+        query.setSegment(readFileFromPropertyOrClassPath("segmentQueryPath", "segment.sql"));
 
-            if (file.exists() == false) {
-                initDefaultSessionSql();
-            } else {
-                logger.info("Session Query Read From : " + sessionQueryPath);
-                query.setSession(FileUtils.readFileToString(file, "UTF-8"));
-            }
-        }
-
-        String tablespaceQueryPath = System.getProperty("tablespaceQueryPath");
-        if (StringUtils.isEmpty(tablespaceQueryPath) == true) {
-            initDefaultTablespaceSql();
-        } else {
-            File file = new File(tablespaceQueryPath);
-
-            if (file.exists() == false) {
-                initDefaultTablespaceSql();
-            } else {
-                logger.info("Tablespace Query Read From : " + tablespaceQueryPath);
-                query.setTablespace(FileUtils.readFileToString(file, "UTF-8"));
-            }
-        }
+        logger.info("load query complete. " + query);
     }
 
     private Session loadSessionInfo(java.sql.Connection connection) throws SQLException {

@@ -1,6 +1,7 @@
 package mj.kokoa.instance.web.vo;
 
 import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import mj.kokoa.common.Predicatable;
 import mj.kokoa.instance.entity.QInstance;
 import org.springframework.data.domain.Sort;
@@ -36,6 +37,8 @@ public class InstanceCondition implements Predicatable {
         }
 
         QInstance instance = QInstance.instance;
-        return instance.branch.eq(branch);
+        BooleanExpression eq = instance.branch.eq(branch);
+
+        return eq;
     }
 }

@@ -1,17 +1,22 @@
-select a.tablespace_name, 
-       a.file_count as file_cnt, 
-       round(a.bt) size_mb, 
-       round(nvl(c.free_bt,0)) free_mb,
-       round(a.bt - nvl(c.free_bt,0)) use_mb,
-       round(100-((1-(a.bt-nvl(c.free_bt,0))/a.bt)*100),1) use_rt
-from (select tablespace_name, count(1) file_count,
-             sum( case when maxbytes >= bytes then maxbytes
-                  else bytes
-                  end )/1024/1024 as max_bt, 
-             sum(bytes)/1024/1024 bt
-from dba_data_files
-group by TABLESPACE_NAME) a,
-(select TABLESPACE_NAME, sum(bytes)/1024/1024 free_bt from dba_free_space
-group by TABLESPACE_NAME) c
-where a.tablespace_name = c.tablespace_name (+)
-order by use_rt desc, size_mb desc, a.tablespace_name asc
+  SELECT a.tablespace_name,
+         a.file_count                    AS file_cnt,
+         ROUND (a.bt)                    size_mb,
+         ROUND (NVL (c.free_bt, 0))      free_mb,
+         ROUND (a.bt - NVL (c.free_bt, 0)) use_mb,
+         ROUND (100 - ( (1 - (a.bt - NVL (c.free_bt, 0)) / a.bt) * 100), 1)
+            use_rt
+    FROM (  SELECT tablespace_name,
+                   COUNT (1)             file_count,
+                     SUM (
+                        CASE WHEN maxbytes >= bytes THEN maxbytes ELSE bytes END)
+                   / 1024
+                   / 1024
+                      AS max_bt,
+                   SUM (bytes) / 1024 / 1024 bt
+              FROM dba_data_files
+          GROUP BY TABLESPACE_NAME) a,
+         (  SELECT TABLESPACE_NAME, SUM (bytes) / 1024 / 1024 free_bt
+              FROM dba_free_space
+          GROUP BY TABLESPACE_NAME) c
+   WHERE a.tablespace_name = c.tablespace_name(+)
+ORDER BY use_rt DESC, size_mb DESC, a.tablespace_name ASC

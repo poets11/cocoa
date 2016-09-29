@@ -3,6 +3,7 @@ package mj.kokoa.instance.entity;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.util.List;
 
 /**
  * Created by poets11 on 2016. 8. 18..
@@ -25,4 +26,12 @@ public class Tablespace {
 
     @Transient
     private double variationAmount;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumns({
+            @JoinColumn(name = "INST_NO", referencedColumnName = "INST_NO"),
+            @JoinColumn(name = "CRE_DT", referencedColumnName = "CRE_DT"),
+            @JoinColumn(name = "TS_NM", referencedColumnName = "TS_NM")
+    })
+    private List<Segment> segmentList;
 }
