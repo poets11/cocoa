@@ -18,6 +18,7 @@ import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -120,6 +121,7 @@ public class InstanceServiceImpl implements InstanceService {
             }
 
             if (tablespaceList.size() > 0) {
+                fillSegmentInfo(connection, tablespaceList);
                 return tablespaceList;
             } else {
                 throw new KokoaException("조회된 데이터가 없습니다.");
@@ -128,6 +130,70 @@ public class InstanceServiceImpl implements InstanceService {
             DbUtils.closeQuietly(resultSet);
             DbUtils.closeQuietly(statement);
         }
+    }
+
+    private void fillSegmentInfo(Connection connection, List<Tablespace> tablespaceList) throws SQLException {
+        Statement statement = null;
+        ResultSet resultSet = null;
+
+        try {
+            statement = connection.createStatement();
+            resultSet = statement.executeQuery(query.getSegment());
+
+            while (resultSet.next()) {
+                Tablespace tablespace = findTablespaceByName(resultSet.getString("TABLESPACE_NAME"), tablespaceList);
+
+                List<Segment> segmentList = tablespace.getSegmentList();
+                if (segmentList == null) {
+                    segmentList = new ArrayList<Segment>();
+                    tablespace.setSegmentList(segmentList);
+                }
+
+                Segment segment = new Segment();
+                segment.setSegmentId(new SegmentId(tablespace.getTablespaceId(), resultSet.getString("SEGMENT_NAME")));
+
+                segment.setOwner(resultSet.getString("OWNER"));
+                segment.setPartitionName(resultSet.getString("PARTITION_NAME"));
+                segment.setSegmentType(resultSet.getString("SEGMENT_TYPE"));
+                segment.setSegmentSubtype(resultSet.getString("SEGMENT_SUBTYPE"));
+                segment.setHeaderFile(resultSet.getLong("HEADER_FILE"));
+                segment.setHeaderBlock(resultSet.getLong("HEADER_BLOCK"));
+                segment.setBytes(resultSet.getLong("BYTES"));
+                segment.setBlocks(resultSet.getLong("BLOCKS"));
+                segment.setExtents(resultSet.getLong("EXTENTS"));
+                segment.setInitialExtent(resultSet.getLong("INITIAL_EXTENT"));
+                segment.setNextExtent(resultSet.getLong("NEXT_EXTENT"));
+                segment.setMinExtents(resultSet.getLong("MIN_EXTENTS"));
+                segment.setMaxExtents(resultSet.getLong("MAX_EXTENTS"));
+                segment.setMaxSize(resultSet.getLong("MAX_SIZE"));
+                segment.setRetention(resultSet.getString("RETENTION"));
+                segment.setMinretention(resultSet.getLong("MINRETENTION"));
+                segment.setPctIncrease(resultSet.getLong("PCT_INCREASE"));
+                segment.setFreelists(resultSet.getLong("FREELISTS"));
+                segment.setFreelistGroups(resultSet.getLong("FREELIST_GROUPS"));
+                segment.setRelativeFno(resultSet.getLong("RELATIVE_FNO"));
+                segment.setBufferPool(resultSet.getString("BUFFER_POOL"));
+                segment.setFlashCache(resultSet.getString("FLASH_CACHE"));
+                segment.setCellFlashCache(resultSet.getString("CELL_FLASH_CACHE"));
+
+                segmentList.add(segment);
+            }
+        } finally {
+            DbUtils.close(resultSet);
+            DbUtils.close(statement);
+        }
+    }
+
+    private Tablespace findTablespaceByName(String tablespaceName, List<Tablespace> tablespaceList) {
+        for (int i = 0; i < tablespaceList.size(); i++) {
+            Tablespace tablespace = tablespaceList.get(i);
+
+            if (tablespace.getTablespaceId().getName().equals(tablespaceName) == true) {
+                return tablespace;
+            }
+        }
+
+        throw new KokoaException("세그먼트와 연결된 테이블 스페이스를 못찾았습니다. 테이블 스페이명 : " + tablespaceName);
     }
 
     private void setVariation(Instance instance) {

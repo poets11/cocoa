@@ -17,6 +17,26 @@ public class Segment {
     private SegmentId segmentId;
 
     private String owner;
-    private String type;
-    private double usedSize;
+    private String partitionName;
+    private String segmentType;
+    private String segmentSubtype;
+    private long headerFile;
+    private long headerBlock;
+    private long bytes;
+    private long blocks;
+    private long extents;
+    private long initialExtent;
+    private long nextExtent;
+    private long minExtents;
+    private long maxExtents;
+    private long maxSize;
+    private String retention;
+    private long minretention;
+    private long pctIncrease;
+    private long freelists;
+    private long freelistGroups;
+    private long relativeFno;
+    private String bufferPool;
+    private String flashCache;
+    private String cellFlashCache;
 }
