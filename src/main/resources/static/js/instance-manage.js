@@ -93,6 +93,7 @@ instanceManage.doModal = function(modal, relatedTarget) {
             form.find("input[name=seq]").val(data.seq);
             form.find("select[name=branch]").val(data.branch);
             form.find("input[name=id]").val(data.id);
+            form.find("input[name=id]").attr("readonly", true);
             form.find("input[name=name]").val(data.name);
             form.find("input[name=description]").val(data.description);
             form.find("input[name=version]").val(data.version);

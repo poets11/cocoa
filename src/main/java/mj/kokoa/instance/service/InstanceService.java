@@ -11,6 +11,7 @@ import java.util.List;
 public interface InstanceService {
     Instance reloadInstanceInfo(String id);
     Instance getInstanceById(String id);
+    Instance getInstanceBySeq(Long seq);
     List<Instance> getAllInstanceList(InstanceCondition instanceCondition);
     Instance save(Instance instance);
     boolean deleteInstanceById(String id);

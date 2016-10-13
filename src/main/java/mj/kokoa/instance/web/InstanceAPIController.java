@@ -2,6 +2,8 @@ package mj.kokoa.instance.web;
 
 import mj.kokoa.instance.entity.Instance;
 import mj.kokoa.instance.service.InstanceService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +19,7 @@ import java.util.Map;
  */
 @RestController
 public class InstanceAPIController {
+    private Logger logger = LoggerFactory.getLogger(getClass());
     @Autowired
     private InstanceService instanceService;
 
@@ -25,12 +28,15 @@ public class InstanceAPIController {
         Map<String, Object> responseData = new HashMap<String, Object>();
 
         try {
+            instance.setId(id);
             instance.setUpdatedDate(new Date());
 
             instanceService.save(instance);
 
             responseData.put("result", true);
         } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+
             responseData.put("result", false);
             responseData.put("message", e.getMessage());
         }

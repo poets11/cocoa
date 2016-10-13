@@ -5,10 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -21,10 +18,13 @@ import java.util.Date;
 @EqualsAndHashCode
 @Embeddable
 public class StatusId implements Serializable {
-    @Column(name = "INST_NO")
-    private long instanceSeq;
+    private static final long serialVersionUID = 7333850262506867678L;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "INST_NO")
+    private Instance instance;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "CRE_DT")
+    @Column(name = "CRE_DT", updatable = false)
     private Date createdDate;
 }

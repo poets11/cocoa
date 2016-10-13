@@ -1,17 +1,22 @@
 package mj.kokoa.instance.entity;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by poets11 on 2016. 8. 18..
  */
 @Data
+@EqualsAndHashCode
 @Entity
 @Table(name = "TB_DAILY_TS")
-public class Tablespace {
+public class Tablespace implements Serializable {
+    private static final long serialVersionUID = 4949983347628145268L;
+
     @EmbeddedId
     private TablespaceId tablespaceId;
 
@@ -27,11 +32,6 @@ public class Tablespace {
     @Transient
     private double variationAmount;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumns({
-            @JoinColumn(name = "INST_NO", referencedColumnName = "INST_NO"),
-            @JoinColumn(name = "CRE_DT", referencedColumnName = "CRE_DT"),
-            @JoinColumn(name = "TS_NM", referencedColumnName = "TS_NM")
-    })
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "segmentId.tablespace")
     private List<Segment> segmentList;
 }

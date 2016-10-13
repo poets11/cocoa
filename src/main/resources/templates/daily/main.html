@@ -111,7 +111,7 @@
                 <div class="col-md-6" th:if="${instStatus.index + 1 < instanceList.size()}" th:with="curInst=${instanceList.get(instStatus.index + 1)}">
                     <div class="box" th:id="'box-' + ${curInst.id}">
                         <div class="box-header">
-                            <h3 class="box-title" style="font-size:15px; font-weight:bold">
+                            <h3 class="box-title" style="font-size:15px; font-weight:bold">[[${'[' + curInst.branch + ']'}]]
                                 [[${curInst.name}]]([[${curInst.id}]]) <i class="fa fa-refresh" th:onclick="'dailyInspection.reloadInstance(\'' + ${curInst.id} + '\')'"></i>
                             </h3>
                             <div class="box-tools pull-right" style="top: 9px" th:if="${curInst.statusList != null && curInst.statusList.size() > 0}" th:with="curStatus=${curInst.statusList.get(curInst.statusList.size() - 1)}">

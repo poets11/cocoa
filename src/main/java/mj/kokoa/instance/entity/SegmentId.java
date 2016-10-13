@@ -5,8 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import javax.persistence.*;
 import java.io.Serializable;
 
 /**
@@ -18,7 +17,14 @@ import java.io.Serializable;
 @EqualsAndHashCode
 @Embeddable
 public class SegmentId implements Serializable {
-    private TablespaceId tablespaceId;
-    @Column(name = "SEG_NM")
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumns({
+            @JoinColumn(name = "INST_NO", referencedColumnName = "INST_NO"),
+            @JoinColumn(name = "CRE_DT", referencedColumnName = "CRE_DT"),
+            @JoinColumn(name = "TS_NM", referencedColumnName = "TS_NM")
+    })
+    private Tablespace tablespace;
+
+    @Column(name = "SEG_NM", updatable = false, insertable = false)
     private String name;
 }

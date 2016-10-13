@@ -3,7 +3,6 @@ package mj.kokoa.instance.service;
 import mj.kokoa.common.KokoaException;
 import mj.kokoa.instance.entity.*;
 import mj.kokoa.instance.repository.InstanceRepository;
-import mj.kokoa.instance.repository.StatusRepository;
 import mj.kokoa.instance.web.vo.InstanceCondition;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.FileUtils;
@@ -12,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
@@ -37,9 +37,6 @@ public class InstanceServiceImpl implements InstanceService {
 
     @Autowired
     private InstanceRepository instanceRepository;
-
-    @Autowired
-    private StatusRepository statusRepository;
 
     private String readFileFromPropertyOrClassPath(String propKey, String pathInClassPath) throws IOException {
         String filePath = System.getProperty(propKey);
@@ -73,7 +70,35 @@ public class InstanceServiceImpl implements InstanceService {
         logger.info("load query complete. " + query);
     }
 
-    private Session loadSessionInfo(java.sql.Connection connection) throws SQLException {
+    @Transactional
+    @Override
+    public Instance reloadInstanceInfo(String id) {
+        java.sql.Connection connection = null;
+        try {
+            Instance instance = instanceRepository.findById(id);
+
+            connection = instance.getConnection().createConnection();
+            connection.setReadOnly(true);
+
+            Status status = new Status();
+
+            status.setStatusId(new StatusId(instance, new Date()));
+            loadSessionInfo(connection, status);
+            loadTablespaceInfo(connection, status);
+            loadTablespaceSegmentInfo(connection, status.getTablespaceList());
+
+            instance.getStatusList().add(status);
+            instance = instanceRepository.save(instance);
+
+            return instance;
+        } catch (SQLException e) {
+            throw new KokoaException(e.getMessage(), e);
+        } finally {
+            DbUtils.closeQuietly(connection);
+        }
+    }
+
+    private void loadSessionInfo(Connection connection, Status status) throws SQLException {
         Statement statement = null;
         ResultSet resultSet = null;
 
@@ -87,7 +112,7 @@ public class InstanceServiceImpl implements InstanceService {
                 session.setLockedCount(resultSet.getInt("locked"));
                 session.setTotalCount(resultSet.getInt("total"));
 
-                return session;
+                status.setSession(session);
             } else {
                 throw new KokoaException("조회된 데이터가 없습니다.");
             }
@@ -97,12 +122,16 @@ public class InstanceServiceImpl implements InstanceService {
         }
     }
 
-    private List<Tablespace> loadTablespaceInfo(java.sql.Connection connection, Status status) throws SQLException {
+    private void loadTablespaceInfo(java.sql.Connection connection, Status status) throws SQLException {
         Statement statement = null;
         ResultSet resultSet = null;
 
         try {
-            List<Tablespace> tablespaceList = new ArrayList<Tablespace>();
+            List<Tablespace> tablespaceList = status.getTablespaceList();
+            if (tablespaceList == null) {
+                tablespaceList = new ArrayList<Tablespace>();
+                status.setTablespaceList(tablespaceList);
+            }
 
             statement = connection.createStatement();
             resultSet = statement.executeQuery(query.getTablespace());
@@ -110,7 +139,7 @@ public class InstanceServiceImpl implements InstanceService {
             while (resultSet.next()) {
                 Tablespace tablespace = new Tablespace();
 
-                tablespace.setTablespaceId(new TablespaceId(status.getStatusId(), resultSet.getString("tablespace_name")));
+                tablespace.setTablespaceId(new TablespaceId(status, resultSet.getString("tablespace_name")));
                 tablespace.setFileCount(resultSet.getInt("file_cnt"));
                 tablespace.setTotalSize(resultSet.getDouble("size_mb"));
                 tablespace.setFreeSize(resultSet.getDouble("free_mb"));
@@ -119,20 +148,13 @@ public class InstanceServiceImpl implements InstanceService {
 
                 tablespaceList.add(tablespace);
             }
-
-            if (tablespaceList.size() > 0) {
-                fillSegmentInfo(connection, tablespaceList);
-                return tablespaceList;
-            } else {
-                throw new KokoaException("조회된 데이터가 없습니다.");
-            }
         } finally {
             DbUtils.closeQuietly(resultSet);
             DbUtils.closeQuietly(statement);
         }
     }
 
-    private void fillSegmentInfo(Connection connection, List<Tablespace> tablespaceList) throws SQLException {
+    private void loadTablespaceSegmentInfo(Connection connection, List<Tablespace> tablespaceList) throws SQLException {
         Statement statement = null;
         ResultSet resultSet = null;
 
@@ -145,36 +167,37 @@ public class InstanceServiceImpl implements InstanceService {
 
                 List<Segment> segmentList = tablespace.getSegmentList();
                 if (segmentList == null) {
-                    segmentList = new ArrayList<Segment>();
+                    segmentList = new ArrayList<>();
                     tablespace.setSegmentList(segmentList);
                 }
 
                 Segment segment = new Segment();
-                segment.setSegmentId(new SegmentId(tablespace.getTablespaceId(), resultSet.getString("SEGMENT_NAME")));
 
+                segment.setSegmentId(new SegmentId(tablespace, resultSet.getString("SEGMENT_NAME")));
                 segment.setOwner(resultSet.getString("OWNER"));
                 segment.setPartitionName(resultSet.getString("PARTITION_NAME"));
                 segment.setSegmentType(resultSet.getString("SEGMENT_TYPE"));
-                segment.setSegmentSubtype(resultSet.getString("SEGMENT_SUBTYPE"));
-                segment.setHeaderFile(resultSet.getLong("HEADER_FILE"));
-                segment.setHeaderBlock(resultSet.getLong("HEADER_BLOCK"));
                 segment.setBytes(resultSet.getLong("BYTES"));
-                segment.setBlocks(resultSet.getLong("BLOCKS"));
-                segment.setExtents(resultSet.getLong("EXTENTS"));
-                segment.setInitialExtent(resultSet.getLong("INITIAL_EXTENT"));
-                segment.setNextExtent(resultSet.getLong("NEXT_EXTENT"));
-                segment.setMinExtents(resultSet.getLong("MIN_EXTENTS"));
-                segment.setMaxExtents(resultSet.getLong("MAX_EXTENTS"));
-                segment.setMaxSize(resultSet.getLong("MAX_SIZE"));
-                segment.setRetention(resultSet.getString("RETENTION"));
-                segment.setMinretention(resultSet.getLong("MINRETENTION"));
-                segment.setPctIncrease(resultSet.getLong("PCT_INCREASE"));
-                segment.setFreelists(resultSet.getLong("FREELISTS"));
-                segment.setFreelistGroups(resultSet.getLong("FREELIST_GROUPS"));
-                segment.setRelativeFno(resultSet.getLong("RELATIVE_FNO"));
-                segment.setBufferPool(resultSet.getString("BUFFER_POOL"));
-                segment.setFlashCache(resultSet.getString("FLASH_CACHE"));
-                segment.setCellFlashCache(resultSet.getString("CELL_FLASH_CACHE"));
+
+//                segment.setSegmentSubtype(resultSet.getString("SEGMENT_SUBTYPE"));
+//                segment.setHeaderFile(resultSet.getLong("HEADER_FILE"));
+//                segment.setHeaderBlock(resultSet.getLong("HEADER_BLOCK"));
+//                segment.setBlocks(resultSet.getLong("BLOCKS"));
+//                segment.setExtents(resultSet.getLong("EXTENTS"));
+//                segment.setInitialExtent(resultSet.getLong("INITIAL_EXTENT"));
+//                segment.setNextExtent(resultSet.getLong("NEXT_EXTENT"));
+//                segment.setMinExtents(resultSet.getLong("MIN_EXTENTS"));
+//                segment.setMaxExtents(resultSet.getLong("MAX_EXTENTS"));
+//                segment.setMaxSize(resultSet.getLong("MAX_SIZE"));
+//                segment.setRetention(resultSet.getString("RETENTION"));
+//                segment.setMinretention(resultSet.getLong("MINRETENTION"));
+//                segment.setPctIncrease(resultSet.getLong("PCT_INCREASE"));
+//                segment.setFreelists(resultSet.getLong("FREELISTS"));
+//                segment.setFreelistGroups(resultSet.getLong("FREELIST_GROUPS"));
+//                segment.setRelativeFno(resultSet.getLong("RELATIVE_FNO"));
+//                segment.setBufferPool(resultSet.getString("BUFFER_POOL"));
+//                segment.setFlashCache(resultSet.getString("FLASH_CACHE"));
+//                segment.setCellFlashCache(resultSet.getString("CELL_FLASH_CACHE"));
 
                 segmentList.add(segment);
             }
@@ -227,42 +250,19 @@ public class InstanceServiceImpl implements InstanceService {
     }
 
     @Override
-    public Instance reloadInstanceInfo(String id) {
-        java.sql.Connection connection = null;
-        try {
-            Instance instance = instanceRepository.findById(id);
+    public Instance getInstanceById(String id) {
+        Instance instance = instanceRepository.findById(id);
+        setVariation(instance);
 
-            connection = instance.getConnection().createConnection();
-            connection.setReadOnly(true);
-
-            Status status = new Status();
-            status.setStatusId(new StatusId(instance.getSeq(), new Date()));
-            status.setSession(loadSessionInfo(connection));
-
-            List<Status> statusList = instance.getStatusList();
-            statusList.add(status);
-
-            instance = instanceRepository.save(instance);
-            statusList = instance.getStatusList();
-
-            status = statusList.get(statusList.size() - 1);
-            status.setTablespaceList(loadTablespaceInfo(connection, status));
-
-            statusRepository.save(status);
-
-            setVariation(instance);
-
-            return instance;
-        } catch (SQLException e) {
-            throw new KokoaException(e.getMessage(), e);
-        } finally {
-            DbUtils.closeQuietly(connection);
-        }
+        return instance;
     }
 
     @Override
-    public Instance getInstanceById(String id) {
-        return instanceRepository.findById(id);
+    public Instance getInstanceBySeq(Long seq) {
+        Instance instance = instanceRepository.findOne(seq);
+        setVariation(instance);
+
+        return instance;
     }
 
     @Override
@@ -277,9 +277,24 @@ public class InstanceServiceImpl implements InstanceService {
         return instanceList;
     }
 
+    @Transactional
     @Override
     public Instance save(Instance instance) {
-        return instanceRepository.save(instance);
+        Instance entity = instanceRepository.findById(instance.getId());
+
+        if (entity == null) {
+            return instanceRepository.save(instance);
+        } else {
+            entity.setId(instance.getId());
+            entity.setBranch(instance.getBranch());
+            entity.setConnection(instance.getConnection());
+            entity.setDescription(instance.getDescription());
+            entity.setHost(instance.getHost());
+            entity.setVersion(instance.getVersion());
+            entity.setUpdatedDate(instance.getUpdatedDate());
+
+            return instanceRepository.save(entity);
+        }
     }
 
     @Override

@@ -5,8 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import javax.persistence.*;
 import java.io.Serializable;
 
 /**
@@ -18,7 +17,15 @@ import java.io.Serializable;
 @EqualsAndHashCode
 @Embeddable
 public class TablespaceId implements Serializable {
-    private StatusId statusId;
-    @Column(name = "TS_NM")
+    private static final long serialVersionUID = -5640463904808803497L;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumns({
+            @JoinColumn(name = "INST_NO", referencedColumnName = "INST_NO"),
+            @JoinColumn(name = "CRE_DT", referencedColumnName = "CRE_DT")
+    })
+    private Status status;
+
+    @Column(name = "TS_NM", updatable = false, insertable = false)
     private String name;
 }
