@@ -41,60 +41,57 @@
                             <div class="row">
                                 <div class="col-xs-12 form-horizontal">
                                     <div class="form-group" style="margin-bottom:5px">
+                                        <label for="period" class="col-xs-3 control-label">기간</label>
+                                        <div class="col-xs-9">
+                                            <div class="input-group">
+                                                <div class="input-group-addon" style="border-top-left-radius:5px; border-bottom-left-radius:5px">
+                                                    <i class="fa fa-calendar"></i>
+                                                </div>
+                                                <input type="text" name="period" id="period" class="form-control pull-right" style="border-top-right-radius:5px; border-bottom-right-radius:5px">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group" style="margin-bottom:5px">
                                         <label for="instanceList" class="col-xs-3 control-label">인스턴스</label>
                                         <div class="col-xs-9">
-                                            <select name="instanceList" class="form-control" id="instanceList">
+                                            <select name="instanceList" class="form-control" id="instanceList" onchange="loadCurrentTablespaceList()">
+                                                <option value="">인스턴스 선택</option>
                                                 <optgroup th:each="instanceGroup : ${instanceGroupList}"
                                                           th:attr="label=${instanceGroup.branch}">
                                                     <option th:each="instance : ${instanceGroup.instanceList}"
                                                             th:attr="value=${instance.id}"
-                                                            th:text="${instance.id}"></option>
+                                                            th:text="${instance.id + ' - ' + instance.name}"></option>
                                                 </optgroup>
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="form-group" style="margin-bottom:5px">
-                                        <label for="period" class="col-xs-3 control-label">기간</label>
-                                        <div class="col-xs-9">
-                                            <div class="input-group">
-                                                <div class="input-group-addon">
-                                                    <i class="fa fa-calendar"></i>
-                                                </div>
-                                                <input type="text" name="period" id="period"
-                                                       class="form-control pull-right">
-                                            </div>
-                                        </div>
-                                    </div>
+
                                     <div class="form-group" style="margin-bottom:5px">
                                         <label for="tablespaceList" class="col-xs-3 control-label">테이블 스페이스</label>
                                         <div class="col-xs-9">
-                                            <select name="tablespaceList" class="form-control" id="tablespaceList">
-
+                                            <select name="tablespaceList" class="form-control" id="tablespaceList" multiple>
+                                                <option>1</option>
+                                                <option>1</option>
+                                                <option>1</option>
+                                                <option>1</option>
+                                                <option>1</option>
+                                                <option>1</option>
+                                                <option>1</option>
                                             </select>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <!-- /.col -->
-                        <!--<div class="col-sm-4 invoice-col">-->
-                        <!--<div class="form-group">-->
-                        <!--<select multiple="" class="form-control" style="height:110px">-->
-                        <!--<option>option 1</option>-->
-                        <!--<option>option 2</option>-->
-                        <!--<option>option 3</option>-->
-                        <!--<option>option 4</option>-->
-                        <!--<option>option 5</option>-->
-                        <!--</select>-->
-                        <!--</div>-->
-                        <!--</div>-->
-                        <!-- /.col -->
-                        <div class="col-sm-6 invoice-col">
-                            <b>Invoice #007612</b><br>
-                            <br>
-                            <b>Order ID:</b> 4F3S8J<br>
-                            <b>Payment Due:</b> 2/22/2014<br>
-                            <b>Account:</b> 968-34567
+
+                        <div id="instanceSummary" class="col-sm-6 invoice-col">
+                            <b>이름(아이디) : </b><br>
+                            <b>이름 : </b> 으허허<br>
+                            <b>호스트 : </b> ㄴ어란어리ㅏ넝라ㅣ너일<br>
+                            <b>설명 : </b> 으키키키<br>
+                            <b>버전:</b> 968-34567<br>
+                            <b>주소 </b> 968-34567 : <br>
                         </div>
                         <!-- /.col -->
                     </div>
@@ -149,49 +146,37 @@
         <!-- Select2 -->
         <script src="/js/status.js"></script>
         <script>
-          $(function () {
-            $('#period').daterangepicker({
-                "autoApply": true,
-                "locale": {
-                    "format": "YYYY/MM/DD",
-                    "separator": " - ",
-                    "daysOfWeek": [
-                        "일",
-                        "월",
-                        "화",
-                        "수",
-                        "목",
-                        "금",
-                        "토"
-                    ],
-                    "monthNames": [
-                        "1월",
-                        "2월",
-                        "3월",
-                        "4월",
-                        "5월",
-                        "6월",
-                        "7월",
-                        "8월",
-                        "9월",
-                        "10월",
-                        "11월",
-                        "12월"
-                    ],
-                    "firstDay": 1
-                },
-                "opens": "right",
-                "alwaysShowCalendars": true
-            }, function(start, end, label) {
-              console.log("New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')");
+            $(function(){
+                $('#period').daterangepicker({
+                    "autoApply": true,
+                    "locale": {
+                        "format": "YYYY/MM/DD",
+                        "separator": " - ",
+                        "daysOfWeek": ["일","월","화","수","목","금","토"],
+                        "monthNames": ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"],
+                        "firstDay": 1
+                    },
+                    "opens": "right",
+                    "alwaysShowCalendars": true
+                    },
+                    function(start, end, label) {
+                        console.log(start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
+                    }
+                );
+            });
+
+            $(function(){
+                $("select").select2();
+            });
+
+            function loadCurrentTablespaceList(){
+                var selectedInstance = $("#instanceList").val();
+                var currInst = instanceSummary[selectedInstance];
+
+                $("#instanceSummary").html(currInst.summary);
             }
-            );
-          });
 
-          $(function(){
-            $("select").select2();
-          });
-
+            var instanceSummary = [(${instanceSummary})]
         </script>
     </div>
     <!-- /.content-wrapper -->
