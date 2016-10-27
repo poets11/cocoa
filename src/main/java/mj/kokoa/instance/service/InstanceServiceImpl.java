@@ -3,7 +3,7 @@ package mj.kokoa.instance.service;
 import mj.kokoa.common.KokoaException;
 import mj.kokoa.instance.entity.*;
 import mj.kokoa.instance.repository.InstanceRepository;
-import mj.kokoa.instance.web.vo.InstanceCondition;
+import mj.kokoa.instance.web.dto.InstanceCondition;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -173,10 +173,12 @@ public class InstanceServiceImpl implements InstanceService {
 
                 Segment segment = new Segment();
 
-                segment.setSegmentId(new SegmentId(tablespace, resultSet.getString("SEGMENT_NAME")));
-                segment.setOwner(resultSet.getString("OWNER"));
-                segment.setPartitionName(resultSet.getString("PARTITION_NAME"));
-                segment.setSegmentType(resultSet.getString("SEGMENT_TYPE"));
+                String segmentName = resultSet.getString("SEGMENT_NAME");
+                String owner = resultSet.getString("OWNER");
+                String segmentType = resultSet.getString("SEGMENT_TYPE");
+                String partitionName = resultSet.getString("PARTITION_NAME");
+                SegmentId segmentId = new SegmentId(tablespace, segmentName, owner, segmentType, partitionName);
+                segment.setSegmentId(segmentId);
                 segment.setBytes(resultSet.getLong("BYTES"));
 
 //                segment.setSegmentSubtype(resultSet.getString("SEGMENT_SUBTYPE"));
@@ -246,6 +248,8 @@ public class InstanceServiceImpl implements InstanceService {
                     }
                 }
             }
+
+            preTablespaceList = tablespaceList;
         }
     }
 

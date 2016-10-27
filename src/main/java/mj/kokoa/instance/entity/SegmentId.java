@@ -2,7 +2,6 @@ package mj.kokoa.instance.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -12,11 +11,12 @@ import java.io.Serializable;
  * Created by poets11 on 2016. 9. 29..
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
+@AllArgsConstructor
 @Embeddable
 public class SegmentId implements Serializable {
+    private static final long serialVersionUID = -8933891049035230878L;
+
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumns({
             @JoinColumn(name = "INST_NO", referencedColumnName = "INST_NO"),
@@ -25,6 +25,15 @@ public class SegmentId implements Serializable {
     })
     private Tablespace tablespace;
 
-    @Column(name = "SEG_NM", updatable = false, insertable = false)
+    @Column(name = "SEG_NM", updatable = false, insertable = false, length = 50)
     private String name;
+
+    @Column(name = "SEG_OWN", updatable = false, insertable = false, length = 50)
+    private String owner;
+
+    @Column(name = "SEG_TYP", updatable = false, insertable = false, length = 20)
+    private String segmentType;
+
+    @Column(updatable = false, insertable = false, length = 100)
+    private String partitionName = "none";
 }

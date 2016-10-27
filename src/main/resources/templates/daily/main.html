@@ -136,7 +136,9 @@
                                     <th style="text-align:center">증감(%)</th>
                                 </tr>
                                 <th:block th:if="${curInst.statusList != null && curInst.statusList.size() > 0}" th:with="curStatus=${curInst.statusList.get(curInst.statusList.size() - 1)}">
-                                    <tr th:if="${tablespaceStatus.index < 5}" th:each="tablespace, tablespaceStatus : ${curStatus.tablespaceList}">
+                                    <!-- 최대 100개의 테이블 스페이스 표시 -->
+                                    <tr th:if="${tablespaceStatus.index < 100}"
+                                        th:each="tablespace, tablespaceStatus : ${curStatus.tablespaceList}">
                                         <td style="text-align:center" th:text="${tablespaceStatus.index + 1}">1.</td>
                                         <td style="text-align:center" th:text="${tablespace.tablespaceId.name}">SYSAUX</td>
                                         <td style="text-align:center" th:text="${#numbers.formatInteger(tablespace.fileCount, 1, 'COMMA')}">15</td>

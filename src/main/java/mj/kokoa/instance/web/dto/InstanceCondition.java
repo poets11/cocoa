@@ -1,4 +1,4 @@
-package mj.kokoa.instance.web.vo;
+package mj.kokoa.instance.web.dto;
 
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;

@@ -1,7 +1,9 @@
 package mj.kokoa.instance.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.commons.dbutils.DbUtils;
 
 import javax.persistence.Column;
@@ -15,6 +17,8 @@ import java.sql.Statement;
  * Created by poets11 on 2016. 8. 18..
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Embeddable
 public class Connection implements Serializable{
     private static final String JDBC_URL = "jdbc:oracle:thin:@%s:%s:%s";

@@ -2,6 +2,7 @@ package mj.kokoa.instance.web;
 
 import mj.kokoa.instance.entity.Instance;
 import mj.kokoa.instance.service.InstanceService;
+import mj.kokoa.instance.web.dto.InstanceDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +48,18 @@ public class InstanceAPIController {
     @RequestMapping(value = "/instance/{id}.mj", method = RequestMethod.GET)
     public Object getInstanceInfo(@PathVariable String id) {
         Instance instance = instanceService.getInstanceById(id);
-        return instance;
+
+        InstanceDto instanceDto = new InstanceDto();
+        instanceDto.setSeq(instance.getSeq());
+        instanceDto.setId(instance.getId());
+        instanceDto.setName(instance.getName());
+        instanceDto.setBranch(instance.getBranch());
+        instanceDto.setDescription(instance.getDescription());
+        instanceDto.setHost(instance.getHost());
+        instanceDto.setVersion(instance.getVersion());
+        instanceDto.setConnection(instance.getConnection());
+
+        return instanceDto;
     }
 
     @RequestMapping(value = "/instance/{id}.mj", method = RequestMethod.DELETE)

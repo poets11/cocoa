@@ -3,7 +3,7 @@ package mj.kokoa.web.instance;
 import mj.kokoa.common.ExceptionUtil;
 import mj.kokoa.instance.entity.Instance;
 import mj.kokoa.instance.service.InstanceService;
-import mj.kokoa.instance.web.vo.InstanceCondition;
+import mj.kokoa.instance.web.dto.InstanceCondition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

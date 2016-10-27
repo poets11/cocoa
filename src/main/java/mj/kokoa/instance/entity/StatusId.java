@@ -2,7 +2,6 @@ package mj.kokoa.instance.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -13,12 +12,11 @@ import java.util.Date;
  * Created by poets11 on 2016. 9. 20..
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
+@AllArgsConstructor
 @Embeddable
 public class StatusId implements Serializable {
-    private static final long serialVersionUID = 7333850262506867678L;
+    private static final long serialVersionUID = 3891152139802459814L;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "INST_NO")

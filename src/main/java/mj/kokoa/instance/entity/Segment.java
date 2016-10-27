@@ -1,7 +1,8 @@
 package mj.kokoa.instance.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
@@ -11,20 +12,17 @@ import javax.persistence.Table;
  * Created by poets11 on 2016. 9. 29..
  */
 @Data
-@EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "TB_DAILY_TS_SEG")
 public class Segment {
     @EmbeddedId
     private SegmentId segmentId;
-
-    private String owner;
-    private String partitionName;
-    private String segmentType;
+    private long bytes;
 //    private String segmentSubtype;
 //    private long headerFile;
 //    private long headerBlock;
-    private long bytes;
 //    private long blocks;
 //    private long extents;
 //    private long initialExtent;
@@ -42,3 +40,4 @@ public class Segment {
 //    private String flashCache;
 //    private String cellFlashCache;
 }
+

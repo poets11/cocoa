@@ -4,7 +4,7 @@
               class="ch.qos.logback.core.rolling.RollingFileAppender">
         <prudent>true</prudent>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>c:/logs/applicatoin.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>logs/applicatoin.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
@@ -22,22 +22,27 @@
     </appender>
 
     <logger name="mj.kokoa" additivity="false" level="DEBUG">
+        <appender-ref ref="console"/>
         <appender-ref ref="dailyRollingFileAppender"/>
     </logger>
 
     <logger name="nz.net" additivity="false" level="WARN">
+        <appender-ref ref="console"/>
         <appender-ref ref="dailyRollingFileAppender"/>
     </logger>
 
     <logger name="org.hibernate" additivity="false" level="INFO">
+        <appender-ref ref="console"/>
         <appender-ref ref="dailyRollingFileAppender"/>
     </logger>
 
     <logger name="org.hibernate.SQL" additivity="false" level="DEBUG">
+        <appender-ref ref="console"/>
         <appender-ref ref="dailyRollingFileAppender"/>
     </logger>
 
     <logger name="org.hibernate.type.descriptor.sql" additivity="false" level="TRACE">
+        <appender-ref ref="console"/>
         <appender-ref ref="dailyRollingFileAppender"/>
     </logger>
 

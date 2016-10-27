@@ -1,7 +1,7 @@
 package mj.kokoa.instance.service;
 
 import mj.kokoa.instance.entity.Instance;
-import mj.kokoa.instance.web.vo.InstanceCondition;
+import mj.kokoa.instance.web.dto.InstanceCondition;
 
 import java.util.List;
 
