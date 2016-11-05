@@ -1,3 +1,4 @@
+/*
 Morris.Line({
   element: 'line-example',
   data: [
@@ -41,4 +42,4 @@ Morris.Line({
   ymax: 100,
   xLabels: 'day'
 })
-
+*/

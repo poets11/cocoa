@@ -3,10 +3,10 @@ package mj.kokoa.instance.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.util.StringUtils;
 
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.Date;
 
 /**
  * Created by poets11 on 2016. 9. 29..
@@ -17,27 +17,39 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "TB_DAILY_TS_SEG")
 public class Segment {
-    @EmbeddedId
-    private SegmentId segmentId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long seq;
+
+    @Column(name = "INST_NO")
+    private Long instanceNo;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "CRE_DT")
+    private Date createdDate;
+
+    @Column(name = "TS_NM", length = 50)
+    private String tablespaceName;
+
     private long bytes;
-//    private String segmentSubtype;
-//    private long headerFile;
-//    private long headerBlock;
-//    private long blocks;
-//    private long extents;
-//    private long initialExtent;
-//    private long nextExtent;
-//    private long minExtents;
-//    private long maxExtents;
-//    private long maxSize;
-//    private String retention;
-//    private long minretention;
-//    private long pctIncrease;
-//    private long freelists;
-//    private long freelistGroups;
-//    private long relativeFno;
-//    private String bufferPool;
-//    private String flashCache;
-//    private String cellFlashCache;
+
+    @Column(name = "SEG_NM", length = 50)
+    private String name;
+
+    @Column(name = "SEG_OWN", length = 50)
+    private String owner;
+
+    @Column(name = "SEG_TYP", length = 20)
+    private String segmentType;
+
+    @Column(length = 100)
+    private String partitionName;
+
+    @PrePersist
+    public void initDefaultValue() {
+        if (StringUtils.hasText(partitionName) == false) {
+            partitionName = "none";
+        }
+    }
 }
 

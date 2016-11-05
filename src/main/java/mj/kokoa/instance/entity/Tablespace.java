@@ -34,6 +34,6 @@ public class Tablespace {
     @Transient
     private double variationAmount;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "segmentId.tablespace")
+    @Transient
     private List<Segment> segmentList;
 }

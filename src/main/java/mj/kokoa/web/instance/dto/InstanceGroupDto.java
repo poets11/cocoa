@@ -1,4 +1,4 @@
-package mj.kokoa.web.instance.dto.status;
+package mj.kokoa.web.instance.dto;
 
 import lombok.Data;
 import mj.kokoa.instance.entity.Instance;

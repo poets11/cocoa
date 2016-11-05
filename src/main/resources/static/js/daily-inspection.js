@@ -70,3 +70,5 @@ dailyInspection.reloadInstance = function(id) {
 dailyInspection.changeBranch = function(branch) {
     location.href = "/daily-inspection/main.mj?branch=" + branch;
 }
+
+$('#datepicker').datepicker();

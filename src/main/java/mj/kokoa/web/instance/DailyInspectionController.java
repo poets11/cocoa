@@ -3,6 +3,7 @@ package mj.kokoa.web.instance;
 import mj.kokoa.common.ExceptionUtil;
 import mj.kokoa.instance.entity.Instance;
 import mj.kokoa.instance.service.InstanceService;
+import mj.kokoa.instance.service.StatusService;
 import mj.kokoa.instance.web.dto.InstanceCondition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,9 @@ public class DailyInspectionController {
     @Autowired
     private InstanceService instanceService;
 
+    @Autowired
+    private StatusService statusService;
+
     @RequestMapping("/")
     public String index() {
         logger.debug("인덱스로 접근 -> 일일점검 메인페이지로 리다이렉트");
@@ -37,6 +41,10 @@ public class DailyInspectionController {
 
         List<Instance> instanceList = instanceService.getAllInstanceList(instanceCondition);
         logger.debug("조회된 인스턴스 수 : {}", instanceList.size());
+
+//        List<Date> uniqueDateList = statusService.getUniqueDateList();
+
+//        System.out.println("______ date list : " + uniqueDateList);
 
         model.addAttribute("instanceList", instanceList);
 

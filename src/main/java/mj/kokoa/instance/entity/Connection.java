@@ -23,19 +23,19 @@ import java.sql.Statement;
 public class Connection implements Serializable{
     private static final String JDBC_URL = "jdbc:oracle:thin:@%s:%s:%s";
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 15)
     private String ip;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 4)
     private String port;
 
-    @Column(name = "SERVICE_NM", nullable = false)
+    @Column(name = "SERVICE_NM", nullable = false, length = 15)
     private String sid;
 
-    @Column(name = "USER_NM", nullable = false)
+    @Column(name = "USER_NM", nullable = false, length = 20)
     private String userName;
 
-    @Column(name = "PW", nullable = false)
+    @Column(name = "PW", nullable = false, length = 50)
     private String userPassword;
 
     @JsonIgnore

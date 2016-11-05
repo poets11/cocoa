@@ -2,11 +2,13 @@
 <html xmlns:th="http://www.thymeleaf.org" layout:decorator="layout/template">
 <head>
     <title>Kokoa</title>
-    <link rel="stylesheet" href="/plugins/morris/morris.css">
+    <!--<link rel="stylesheet" href="/plugins/morris/morris.css">-->
     <link rel="stylesheet" href="/plugins/select2/select2.min.css">
 
-    <script src="/plugins/chart/raphael-min.js"></script>
-    <script src="/plugins/morris/morris.min.js"></script>
+    <!--<script src="/plugins/chart/raphael-min.js"></script>-->
+    <!--<script src="/plugins/chartjs/Chart.js"></script>-->
+
+    <script src="/plugins/chartjs/ChartLatest.js"></script>
     <script src="/plugins/select2/select2.full.min.js"></script>
 </head>
 <body>
@@ -30,7 +32,8 @@
                 <div class="box-header">
                     <h3 class="box-title">대상 인스턴스 선택</h3>
                     <div class="box-tools" style="top:9px">
-                        <button type="button" data-toggle="modal" data-target="#myModal"><i class="fa fa-edit"></i> 조회
+                        <button type="button" onclick="loadCurrentTablespaceChart()">
+                            <i class="fa fa-edit"></i> 조회
                         </button>
                     </div>
                 </div>
@@ -69,16 +72,8 @@
 
                                     <div class="form-group" style="margin-bottom:5px">
                                         <label for="tablespaceList" class="col-xs-3 control-label">테이블 스페이스</label>
-                                        <div class="col-xs-9">
-                                            <select name="tablespaceList" class="form-control" id="tablespaceList" multiple>
-                                                <option>1</option>
-                                                <option>1</option>
-                                                <option>1</option>
-                                                <option>1</option>
-                                                <option>1</option>
-                                                <option>1</option>
-                                                <option>1</option>
-                                            </select>
+                                        <div class="col-xs-9" id="tablespaceListBlock">
+                                            <input type="text" disabled="disabled" class="form-control" id="tablespaceList" placeholder="인스턴스를 선택하세요" style="border-top-left-radius:5px; border-bottom-left-radius:5px; border-top-right-radius:5px; border-bottom-right-radius:5px">
                                         </div>
                                     </div>
                                 </div>
@@ -86,12 +81,7 @@
                         </div>
 
                         <div id="instanceSummary" class="col-sm-6 invoice-col">
-                            <b>이름(아이디) : </b><br>
-                            <b>이름 : </b> 으허허<br>
-                            <b>호스트 : </b> ㄴ어란어리ㅏ넝라ㅣ너일<br>
-                            <b>설명 : </b> 으키키키<br>
-                            <b>버전:</b> 968-34567<br>
-                            <b>주소 </b> 968-34567 : <br>
+
                         </div>
                         <!-- /.col -->
                     </div>
@@ -100,46 +90,22 @@
             </div>
 
             <div class="row">
-                <div class="col-xs-6">
+                <div class="col-md-12">
+                    <!-- AREA CHART -->
                     <div class="box box-primary">
                         <div class="box-header with-border">
-                            <h3 class="box-title">Area Chart</h3>
-                            <div class="box-tools pull-right">
-                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
-                                        class="fa fa-minus"></i>
-                                </button>
-                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i
-                                        class="fa fa-times"></i></button>
-                            </div>
+                            <h3 class="box-title">Tablespace</h3>
                         </div>
                         <div class="box-body">
-                            <div class="chart">
-                                <div id="line-example"></div>
+                            <div id="chartBox" class="chart">
+                                <canvas id="tablespaceChart" style="height:250px"></canvas>
                             </div>
                         </div>
-                            </div>
-                        </div>
-
-                <div class="col-xs-6">
-                    <div class="box box-primary">
-                        <div class="box-header with-border">
-                            <h3 class="box-title">Area Chart</h3>
-                            <div class="box-tools pull-right">
-                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
-                                        class="fa fa-minus"></i>
-                                </button>
-                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i
-                                        class="fa fa-times"></i></button>
-                            </div>
-                        </div>
-                        <div class="box-body">
-                            <div class="chart">
-                                <div id="line-example2"></div>
-                            </div>
-                        </div>
-                            </div>
-                        </div>
+                        <!-- /.box-body -->
                     </div>
+                    <!-- /.box -->
+                </div>
+            </div>
         </section>
         <!-- /.content -->
 
@@ -147,6 +113,13 @@
         <script src="/js/status.js"></script>
         <script>
             $(function(){
+                var today = new Date();
+                var aWeekAgoDay = new Date();
+                aWeekAgoDay.setDate(today.getDate() - 7);
+
+                var dayStart = $.datepicker.formatDate('yy-mm-dd', aWeekAgoDay);
+                var dayEnd = $.datepicker.formatDate('yy-mm-dd', today);
+
                 $('#period').daterangepicker({
                     "autoApply": true,
                     "locale": {
@@ -156,6 +129,8 @@
                         "monthNames": ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"],
                         "firstDay": 1
                     },
+                    startDate: dayStart,
+                    endDate: dayEnd,
                     "opens": "right",
                     "alwaysShowCalendars": true
                     },
@@ -166,14 +141,79 @@
             });
 
             $(function(){
-                $("select").select2();
+                $("#instanceList").select2();
             });
+
+            function loadCurrentTablespaceChart() {
+                var selectedInstance = $("#instanceList").val();
+                var currInst = instanceSummary[selectedInstance];
+
+                var selectedPeriod = $("#period").val();
+                var instanceSeq = currInst.seq;
+                var tablespaceList = $("#tablespaceList").val();
+
+                var reqData = {};
+                reqData.period = selectedPeriod;
+                reqData.tablespaceNameList = tablespaceList;
+
+                var request = $.ajax({
+                    url : "/status/" + currInst.seq + "/tablespace-chart-snippet.mj",
+                    data : reqData
+                });
+
+                request.done(function(data) {
+                    $("#chartBox").html("<canvas id=\"tablespaceChart\" style=\"height:250px\"></canvas>");
+
+                    var areaChartData = {};
+                    areaChartData.labels = data.labelList;
+                    areaChartData.datasets = data.dataList;
+
+                    var areaChartOptions = {
+
+                    };
+
+                    var areaChartCanvas = $("#tablespaceChart").get(0).getContext("2d");
+                    var areaChart = new Chart(areaChartCanvas, {
+                        type : 'line',
+                        data : areaChartData,
+                        options : areaChartOptions
+                    });
+                });
+
+                request.fail(function(){
+                    alert("서버에 접속하는 동안 에러가 발생했습니다. 관리자에게 문의하세요.");
+                });
+
+            }
 
             function loadCurrentTablespaceList(){
                 var selectedInstance = $("#instanceList").val();
                 var currInst = instanceSummary[selectedInstance];
 
                 $("#instanceSummary").html(currInst.summary);
+
+                var selectedPeriod = $("#period").val();
+                var request = $.ajax({
+                    url : "/status/" + currInst.seq + "/tablespace-list-snippet.mj",
+                    data : {
+                        period : selectedPeriod
+                    }
+                });
+
+                request.done(function(data) {
+                    var tablespaceListBlock = $("#tablespaceListBlock");
+                    tablespaceListBlock.html("");
+                    tablespaceListBlock.html(data);
+
+                    var tablespaceList = $("#tablespaceList");
+                    if(tablespaceList) {
+                        tablespaceList.select2();
+                    }
+                });
+
+                request.fail(function(){
+                    alert("서버에 접속하는 동안 에러가 발생했습니다. 관리자에게 문의하세요.");
+                });
             }
 
             var instanceSummary = [(${instanceSummary})]

@@ -3,6 +3,7 @@ package mj.kokoa.instance.service;
 import mj.kokoa.common.KokoaException;
 import mj.kokoa.instance.entity.*;
 import mj.kokoa.instance.repository.InstanceRepository;
+import mj.kokoa.instance.repository.SegmentRepository;
 import mj.kokoa.instance.web.dto.InstanceCondition;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.FileUtils;
@@ -37,6 +38,9 @@ public class InstanceServiceImpl implements InstanceService {
 
     @Autowired
     private InstanceRepository instanceRepository;
+
+    @Autowired
+    private SegmentRepository segmentRepository;
 
     private String readFileFromPropertyOrClassPath(String propKey, String pathInClassPath) throws IOException {
         String filePath = System.getProperty(propKey);
@@ -85,10 +89,11 @@ public class InstanceServiceImpl implements InstanceService {
             status.setStatusId(new StatusId(instance, new Date()));
             loadSessionInfo(connection, status);
             loadTablespaceInfo(connection, status);
-            loadTablespaceSegmentInfo(connection, status.getTablespaceList());
 
             instance.getStatusList().add(status);
             instance = instanceRepository.save(instance);
+
+            loadTablespaceSegmentInfo(connection, status);
 
             return instance;
         } catch (SQLException e) {
@@ -154,54 +159,30 @@ public class InstanceServiceImpl implements InstanceService {
         }
     }
 
-    private void loadTablespaceSegmentInfo(Connection connection, List<Tablespace> tablespaceList) throws SQLException {
+    private void loadTablespaceSegmentInfo(Connection connection, Status status) throws SQLException {
         Statement statement = null;
         ResultSet resultSet = null;
 
         try {
+            List<Tablespace> tablespaceList = status.getTablespaceList();
+
             statement = connection.createStatement();
             resultSet = statement.executeQuery(query.getSegment());
 
             while (resultSet.next()) {
                 Tablespace tablespace = findTablespaceByName(resultSet.getString("TABLESPACE_NAME"), tablespaceList);
 
-                List<Segment> segmentList = tablespace.getSegmentList();
-                if (segmentList == null) {
-                    segmentList = new ArrayList<>();
-                    tablespace.setSegmentList(segmentList);
-                }
-
                 Segment segment = new Segment();
-
-                String segmentName = resultSet.getString("SEGMENT_NAME");
-                String owner = resultSet.getString("OWNER");
-                String segmentType = resultSet.getString("SEGMENT_TYPE");
-                String partitionName = resultSet.getString("PARTITION_NAME");
-                SegmentId segmentId = new SegmentId(tablespace, segmentName, owner, segmentType, partitionName);
-                segment.setSegmentId(segmentId);
+                segment.setCreatedDate(status.getStatusId().getCreatedDate());
+                segment.setInstanceNo(status.getStatusId().getInstance().getSeq());
+                segment.setTablespaceName(tablespace.getTablespaceId().getName());
+                segment.setName(resultSet.getString("SEGMENT_NAME"));
+                segment.setOwner(resultSet.getString("OWNER"));
+                segment.setSegmentType(resultSet.getString("SEGMENT_TYPE"));
+                segment.setPartitionName(resultSet.getString("PARTITION_NAME"));
                 segment.setBytes(resultSet.getLong("BYTES"));
 
-//                segment.setSegmentSubtype(resultSet.getString("SEGMENT_SUBTYPE"));
-//                segment.setHeaderFile(resultSet.getLong("HEADER_FILE"));
-//                segment.setHeaderBlock(resultSet.getLong("HEADER_BLOCK"));
-//                segment.setBlocks(resultSet.getLong("BLOCKS"));
-//                segment.setExtents(resultSet.getLong("EXTENTS"));
-//                segment.setInitialExtent(resultSet.getLong("INITIAL_EXTENT"));
-//                segment.setNextExtent(resultSet.getLong("NEXT_EXTENT"));
-//                segment.setMinExtents(resultSet.getLong("MIN_EXTENTS"));
-//                segment.setMaxExtents(resultSet.getLong("MAX_EXTENTS"));
-//                segment.setMaxSize(resultSet.getLong("MAX_SIZE"));
-//                segment.setRetention(resultSet.getString("RETENTION"));
-//                segment.setMinretention(resultSet.getLong("MINRETENTION"));
-//                segment.setPctIncrease(resultSet.getLong("PCT_INCREASE"));
-//                segment.setFreelists(resultSet.getLong("FREELISTS"));
-//                segment.setFreelistGroups(resultSet.getLong("FREELIST_GROUPS"));
-//                segment.setRelativeFno(resultSet.getLong("RELATIVE_FNO"));
-//                segment.setBufferPool(resultSet.getString("BUFFER_POOL"));
-//                segment.setFlashCache(resultSet.getString("FLASH_CACHE"));
-//                segment.setCellFlashCache(resultSet.getString("CELL_FLASH_CACHE"));
-
-                segmentList.add(segment);
+                segmentRepository.save(segment);
             }
         } finally {
             DbUtils.close(resultSet);

@@ -20,23 +20,26 @@ import java.util.List;
 @Table(name = "TB_INST")
 public class Instance {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "INST_NO", updatable = false)
     private Long seq;
 
-    @Column(name = "TNS_NM", unique = true, nullable = false)
+    @Column(name = "TNS_NM", unique = true, nullable = false, length = 30)
     private String id;
 
-    @Column(name = "INST_NM", nullable = false)
+    @Column(name = "INST_NM", nullable = false, length = 20)
     private String name;
 
+    @Column(length = 30)
     private String host;
 
-    @Column(name = "INST_DESC")
+    @Column(name = "INST_DESC", length = 50)
     private String description;
+
+    @Column(length = 15)
     private String version;
 
-    @Column(name = "COMPANY")
+    @Column(name = "COMPANY", length = 30)
     private String branch;
 
     @Temporal(TemporalType.TIMESTAMP)

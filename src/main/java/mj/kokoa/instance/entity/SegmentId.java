@@ -35,5 +35,5 @@ public class SegmentId implements Serializable {
     private String segmentType;
 
     @Column(updatable = false, insertable = false, length = 100)
-    private String partitionName = "none";
+    private String partitionName;
 }
