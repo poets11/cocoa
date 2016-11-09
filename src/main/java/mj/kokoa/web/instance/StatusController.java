@@ -58,7 +58,7 @@ public class StatusController {
 
     @RequestMapping("/status/{instanceSeq}/tablespace-chart-snippet.mj")
     @ResponseBody
-    public Object getTablespaceChart(HttpServletRequest req, @PathVariable long instanceSeq, String period) {
+    public Object getTablespaceChart(HttpServletRequest req, @PathVariable long instanceSeq, String period, String tablespaceName) {
         Calendar from = Calendar.getInstance(Locale.KOREA);
         Calendar to = Calendar.getInstance(Locale.KOREA);
 
@@ -80,9 +80,7 @@ public class StatusController {
         to.set(Calendar.MINUTE, 59);
         to.set(Calendar.SECOND, 59);
 
-        String[] tablespaceNameList = req.getParameterValues("tablespaceNameList[]");
-
-        ChartDataDto chartDataDto = tablespaceService.findTablespaceList(instanceSeq, tablespaceNameList, from.getTime(), to.getTime());
+        ChartDataDto chartDataDto = tablespaceService.findTablespaceList(instanceSeq, tablespaceName, from.getTime(), to.getTime());
 
         return chartDataDto;
 

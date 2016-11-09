@@ -1,5 +1,6 @@
 package mj.kokoa.instance.service;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import mj.kokoa.common.KokoaException;
 import mj.kokoa.instance.entity.*;
 import mj.kokoa.instance.repository.InstanceRepository;
@@ -23,9 +24,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by poets11 on 2016. 8. 18..
@@ -113,6 +112,7 @@ public class InstanceServiceImpl implements InstanceService {
 
             if (resultSet.next()) {
                 Session session = new Session();
+                session.setLimitCount(resultSet.getInt("limit"));
                 session.setActiveCount(resultSet.getInt("active"));
                 session.setLockedCount(resultSet.getInt("locked"));
                 session.setTotalCount(resultSet.getInt("total"));
@@ -160,33 +160,50 @@ public class InstanceServiceImpl implements InstanceService {
     }
 
     private void loadTablespaceSegmentInfo(Connection connection, Status status) throws SQLException {
-        Statement statement = null;
-        ResultSet resultSet = null;
+        Calendar from = Calendar.getInstance(Locale.KOREA);
+        from.set(Calendar.HOUR_OF_DAY, 0);
+        from.set(Calendar.MINUTE, 0);
+        from.set(Calendar.SECOND, 0);
 
-        try {
-            List<Tablespace> tablespaceList = status.getTablespaceList();
+        Calendar to = Calendar.getInstance(Locale.KOREA);
+        to.set(Calendar.HOUR_OF_DAY, 23);
+        to.set(Calendar.MINUTE, 59);
+        to.set(Calendar.SECOND, 59);
 
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery(query.getSegment());
 
-            while (resultSet.next()) {
-                Tablespace tablespace = findTablespaceByName(resultSet.getString("TABLESPACE_NAME"), tablespaceList);
+        BooleanExpression expression = QSegment.segment.createdDate.between(from.getTime(), to.getTime());
+        expression = expression.and(QSegment.segment.instanceNo.eq(status.getStatusId().getInstance().getSeq()));
 
-                Segment segment = new Segment();
-                segment.setCreatedDate(status.getStatusId().getCreatedDate());
-                segment.setInstanceNo(status.getStatusId().getInstance().getSeq());
-                segment.setTablespaceName(tablespace.getTablespaceId().getName());
-                segment.setName(resultSet.getString("SEGMENT_NAME"));
-                segment.setOwner(resultSet.getString("OWNER"));
-                segment.setSegmentType(resultSet.getString("SEGMENT_TYPE"));
-                segment.setPartitionName(resultSet.getString("PARTITION_NAME"));
-                segment.setBytes(resultSet.getLong("BYTES"));
+        List<Segment> segmentList = (List<Segment>) segmentRepository.findAll(expression);
+        if (segmentList == null || segmentList.size() == 0) {
+            Statement statement = null;
+            ResultSet resultSet = null;
 
-                segmentRepository.save(segment);
+            try {
+                List<Tablespace> tablespaceList = status.getTablespaceList();
+
+                statement = connection.createStatement();
+                resultSet = statement.executeQuery(query.getSegment());
+
+                while (resultSet.next()) {
+                    Tablespace tablespace = findTablespaceByName(resultSet.getString("TABLESPACE_NAME"), tablespaceList);
+
+                    Segment segment = new Segment();
+                    segment.setCreatedDate(status.getStatusId().getCreatedDate());
+                    segment.setInstanceNo(status.getStatusId().getInstance().getSeq());
+                    segment.setTablespaceName(tablespace.getTablespaceId().getName());
+                    segment.setName(resultSet.getString("SEGMENT_NAME"));
+                    segment.setOwner(resultSet.getString("OWNER"));
+                    segment.setSegmentType(resultSet.getString("SEGMENT_TYPE"));
+                    segment.setPartitionName(resultSet.getString("PARTITION_NAME"));
+                    segment.setBytes(resultSet.getLong("BYTES"));
+
+                    segmentRepository.save(segment);
+                }
+            } finally {
+                DbUtils.close(resultSet);
+                DbUtils.close(statement);
             }
-        } finally {
-            DbUtils.close(resultSet);
-            DbUtils.close(statement);
         }
     }
 

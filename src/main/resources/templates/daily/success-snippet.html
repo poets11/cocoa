@@ -4,7 +4,7 @@
     </h3>
     <div class="box-tools pull-right" style="top: 9px" th:if="${curInst.statusList != null && curInst.statusList.size() > 0}" th:with="curStatus=${curInst.statusList.get(curInst.statusList.size() - 1)}">
         <span class="label label-default" th:text="${#dates.format(curStatus.statusId.createdDate, 'yy/MM/dd HH:mm')}">2016-08-11</span>
-        <span class="label label-success" th:text="'T : ' + ${curStatus.session.totalCount}">T : 36</span>
+        <span class="label label-success" th:text="'T : ' + ${curStatus.session.totalCount} + '/' +  ${curStatus.session.limitCount}">T : 36</span>
         <span class="label label-info" th:text="'A : ' + ${curStatus.session.activeCount}">A : 23</span>
         <!-- Locked 세션이 0개 이상일때만 표시 -->
         <span class="label label-danger" th:if="${curStatus.session.lockedCount > 0}" th:text="'L : ' + ${curStatus.session.lockedCount}">L : 2</span>

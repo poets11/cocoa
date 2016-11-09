@@ -1,10 +1,10 @@
 package mj.kokoa.instance.service;
 
-import com.querydsl.core.Tuple;
-import com.querydsl.jpa.impl.JPAQuery;
-import mj.kokoa.instance.entity.QInstance;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import mj.kokoa.instance.entity.QStatus;
-import mj.kokoa.instance.entity.QTablespace;
+import mj.kokoa.instance.entity.Status;
+import mj.kokoa.instance.entity.Tablespace;
+import mj.kokoa.instance.repository.StatusRepository;
 import mj.kokoa.instance.repository.TablespaceRepository;
 import mj.kokoa.web.instance.dto.ChartDataDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +23,36 @@ public class TablespaceServiceImpl implements TablespaceService {
     private EntityManager entityManager;
 
     @Autowired
+    private StatusRepository statusRepository;
+
+    @Autowired
     private TablespaceRepository tablespaceRepository;
 
 
     @Override
     public List<String> findDistinctTablespaceNameList(long instanceSeq, Date from, Date to) {
-        QInstance instance = QInstance.instance;
+        BooleanExpression eq = QStatus.status.statusId.instance.seq.eq(instanceSeq);
+        eq = eq.and(QStatus.status.statusId.createdDate.between(from, to));
+
+        List<String> tablespaceNameList = new ArrayList<>();
+        List<Status> statusList = (List<Status>) statusRepository.findAll(eq);
+        for (int i = 0; i < statusList.size(); i++) {
+            Status status = statusList.get(i);
+
+            List<Tablespace> tablespaceList = status.getTablespaceList();
+            for (int j = 0; j < tablespaceList.size(); j++) {
+                Tablespace tablespace = tablespaceList.get(j);
+                String name = tablespace.getTablespaceId().getName();
+
+                if (tablespaceNameList.contains(name) == false) {
+                    tablespaceNameList.add(name);
+                }
+            }
+        }
+
+        return tablespaceNameList;
+
+        /*QInstance instance = QInstance.instance;
         QStatus status = QStatus.status;
         QTablespace tablespace = QTablespace.tablespace;
 
@@ -41,12 +65,57 @@ public class TablespaceServiceImpl implements TablespaceService {
 
         List<String> tablespaceNameList = query.fetch();
 
-        return tablespaceNameList;
+        return tablespaceNameList;*/
     }
 
     @Override
-    public ChartDataDto findTablespaceList(long instanceSeq, String[] tablespaceNameList, Date from, Date to) {
-        QInstance instance = QInstance.instance;
+    public ChartDataDto findTablespaceList(long instanceSeq, String tablespaceName, Date from, Date to) {
+        BooleanExpression eq = QStatus.status.statusId.instance.seq.eq(instanceSeq);
+        eq = eq.and(QStatus.status.statusId.createdDate.between(from, to));
+
+        List<Status> statusList = (List<Status>) statusRepository.findAll(eq);
+
+        SimpleDateFormat format = new SimpleDateFormat("MM-dd HH:mm");
+
+        List<String> labelList = new ArrayList<String>();
+        Map<String, ChartDataDto.DataDto> valueMap = new HashMap<>();
+        for (int i = 0; i < statusList.size(); i++) {
+            Status status = statusList.get(i);
+
+            String date = format.format(status.getStatusId().getCreatedDate());
+            if (labelList.contains(date) == false) {
+                labelList.add(date);
+            }
+
+            List<Tablespace> tablespaceList = status.getTablespaceList();
+            for (int j = 0; j < tablespaceList.size(); j++) {
+                Tablespace tablespace = tablespaceList.get(j);
+
+                if (tablespaceName.equals(tablespace.getTablespaceId().getName())) {
+                    if (valueMap.containsKey(tablespaceName) == false) {
+                        ChartDataDto.DataDto dataDto = new ChartDataDto.DataDto();
+                        dataDto.setLabel(tablespaceName);
+
+                        valueMap.put(tablespaceName, dataDto);
+                    }
+
+                    ChartDataDto.DataDto dataDto = valueMap.get(tablespaceName);
+                    dataDto.appendValue(tablespace.getUsedSize());
+                }
+            }
+        }
+
+        ChartDataDto chartDataDto = new ChartDataDto();
+        chartDataDto.setLabelList(labelList);
+
+        List<ChartDataDto.DataDto> dataDtos = new ArrayList<>();
+        dataDtos.addAll(valueMap.values());
+        chartDataDto.setDataList(dataDtos);
+
+        return chartDataDto;
+
+
+        /*QInstance instance = QInstance.instance;
         QStatus status = QStatus.status;
         QTablespace tablespace = QTablespace.tablespace;
 
@@ -68,8 +137,6 @@ public class TablespaceServiceImpl implements TablespaceService {
             Date createdDate = tuple.get(status.statusId.createdDate);
             String tablespaceName = tuple.get(tablespace.tablespaceId.name);
             Double usedSize = tuple.get(tablespace.usedSize);
-
-            System.out.println(tablespaceName + " / " + usedSize + " / " + createdDate);
 
             String date = format.format(createdDate);
             if (labelList.contains(date) == false) {
@@ -94,6 +161,6 @@ public class TablespaceServiceImpl implements TablespaceService {
         dataDtos.addAll(valueMap.values());
         chartDataDto.setDataList(dataDtos);
 
-        return chartDataDto;
+        return chartDataDto;*/
     }
 }

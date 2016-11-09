@@ -11,5 +11,5 @@ import java.util.List;
 public interface TablespaceService {
     List<String> findDistinctTablespaceNameList(long instanceId, Date from, Date to);
 
-    ChartDataDto findTablespaceList(long instanceSeq, String[] tablespaceNameList, Date from, Date to);
+    ChartDataDto findTablespaceList(long instanceSeq, String tablespaceName, Date from, Date to);
 }

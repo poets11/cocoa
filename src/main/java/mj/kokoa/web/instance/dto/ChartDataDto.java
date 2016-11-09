@@ -17,6 +17,8 @@ public class ChartDataDto {
     public static class DataDto {
         private String label;
         private List<Double> data = new ArrayList<Double>();
+        private boolean fill = false;
+        private int lineTension = 0;
 
         public void appendValue(Double value) {
             data.add(value);

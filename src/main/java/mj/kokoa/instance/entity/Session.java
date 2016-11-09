@@ -17,8 +17,13 @@ import javax.persistence.Embeddable;
 public class Session {
     @Column(name = "ACTIVE_SESS")
     private int activeCount;
+
+    @Column(name = "LIMIT_SESS")
+    private int limitCount;
+
     @Column(name = "TOTAL_SESS")
     private int totalCount;
+
     @Column(name = "LOCK_SESS")
     private int lockedCount;
 }

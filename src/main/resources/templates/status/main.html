@@ -97,7 +97,7 @@
                             <h3 class="box-title">Tablespace</h3>
                         </div>
                         <div class="box-body">
-                            <div id="chartBox" class="chart">
+                            <div id="chartBox" class="chart" style="height:250px">
                                 <canvas id="tablespaceChart" style="height:250px"></canvas>
                             </div>
                         </div>
@@ -150,11 +150,10 @@
 
                 var selectedPeriod = $("#period").val();
                 var instanceSeq = currInst.seq;
-                var tablespaceList = $("#tablespaceList").val();
 
                 var reqData = {};
                 reqData.period = selectedPeriod;
-                reqData.tablespaceNameList = tablespaceList;
+                reqData.tablespaceName = $("#tablespaceList").val();
 
                 var request = $.ajax({
                     url : "/status/" + currInst.seq + "/tablespace-chart-snippet.mj",
@@ -169,7 +168,10 @@
                     areaChartData.datasets = data.dataList;
 
                     var areaChartOptions = {
-
+                        scaleBeginAtZero: true,
+                        scaleShowGridLines: true,
+                        responsive: true,
+                        maintainAspectRatio : false
                     };
 
                     var areaChartCanvas = $("#tablespaceChart").get(0).getContext("2d");
@@ -178,6 +180,26 @@
                         data : areaChartData,
                         options : areaChartOptions
                     });
+
+
+                    /*
+                    var chartData = {};
+                    chartData.labels = data.labelList;
+                    chartData.datasets = data.dataList;
+
+                    var chartOptions = {
+                        scaleBeginAtZero: true,
+                        scaleShowGridLines: true,
+                        responsive: true,
+                        maintainAspectRatio : true,
+                        datasetFill : false,
+                        bezierCurveTension: 0.0,
+                    };
+
+                    var canvas = $("#tablespaceChart").get(0).getContext("2d");
+                    var lineChart = new Chart(canvas);
+                    lineChart.Line(chartData, chartOptions);
+                    */
                 });
 
                 request.fail(function(){

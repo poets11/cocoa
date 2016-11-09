@@ -1,3 +1,3 @@
-<select name="tablespaceList" class="form-control" id="tablespaceList" multiple="multiple">
+<select name="tablespaceList" class="form-control" id="tablespaceList">
     <option th:each="tablespaceName : ${tablespaceNameList}"  th:value="${tablespaceName}" th:text="${tablespaceName}">1</option>
 </select>
